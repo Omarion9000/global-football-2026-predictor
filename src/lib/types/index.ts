@@ -1,4 +1,21 @@
-// TODO(Phase 2): Canonical domain types — Team, Match, RunType,
-// PredictionInput, PredictionOutput, FormSummary, LineupStrength, InPlayState.
-// See docs/03_MODEL_SPEC.md and docs/05_BUILD_ROADMAP.md Phase 2.
-export {};
+export type { Team, TeamId, Region } from './team';
+export type { PlayerId, PlayerPlaceholder } from './player';
+export type {
+  Fixture,
+  FixtureId,
+  MatchStage,
+  MatchStatus,
+  VenueContext,
+} from './fixture';
+export type { TeamStats, RecentMatch } from './stats';
+export type {
+  PredictionRunType,
+  ConfidenceBand,
+  ScorelineProbability,
+  DataSnapshot,
+  PredictionInput,
+  PredictionOutput,
+  PredictionRun,
+} from './prediction';
+export { PREDICTION_RUN_TYPES } from './prediction';
+export { MissingInputError } from './errors';

@@ -1,0 +1,128 @@
+import type { TeamId, TeamStats } from '@/lib/types';
+
+// Fictional team stats with plausible spread. Ratings range from ~1420 (weakest
+// mock team) to ~1900 (strongest), goals-for averages from ~0.9 to ~2.4, etc.
+// Recent matches are entirely invented; opponent IDs use the "EXT_" prefix to
+// flag that they are external/historical opponents not present in mockTeams.
+export const mockTeamStats: Readonly<Record<TeamId, TeamStats>> = {
+  'team-aur': {
+    teamId: 'team-aur',
+    rating: 1895,
+    goalsForPerGame: 2.3,
+    goalsAgainstPerGame: 0.8,
+    pointsPerGame: 2.4,
+    averageOpponentRating: 1780,
+    recentMatches: [
+      { date: '2026-03-22', opponentId: 'EXT_001', opponentRating: 1820, goalsFor: 3, goalsAgainst: 1 },
+      { date: '2026-03-26', opponentId: 'EXT_002', opponentRating: 1740, goalsFor: 2, goalsAgainst: 0 },
+      { date: '2025-11-15', opponentId: 'EXT_003', opponentRating: 1690, goalsFor: 4, goalsAgainst: 2 },
+      { date: '2025-11-18', opponentId: 'team-for', opponentRating: 1810, goalsFor: 1, goalsAgainst: 1 },
+      { date: '2025-09-08', opponentId: 'EXT_004', opponentRating: 1860, goalsFor: 2, goalsAgainst: 1 },
+    ],
+  },
+  'team-bel': {
+    teamId: 'team-bel',
+    rating: 1820,
+    goalsForPerGame: 1.9,
+    goalsAgainstPerGame: 1.0,
+    pointsPerGame: 2.0,
+    averageOpponentRating: 1720,
+    recentMatches: [
+      { date: '2026-03-21', opponentId: 'EXT_010', opponentRating: 1700, goalsFor: 2, goalsAgainst: 1 },
+      { date: '2026-03-25', opponentId: 'team-gal', opponentRating: 1755, goalsFor: 1, goalsAgainst: 1 },
+      { date: '2025-11-14', opponentId: 'EXT_011', opponentRating: 1680, goalsFor: 3, goalsAgainst: 0 },
+      { date: '2025-11-17', opponentId: 'EXT_012', opponentRating: 1740, goalsFor: 0, goalsAgainst: 1 },
+      { date: '2025-09-09', opponentId: 'EXT_013', opponentRating: 1790, goalsFor: 2, goalsAgainst: 2 },
+    ],
+  },
+  'team-cas': {
+    teamId: 'team-cas',
+    rating: 1645,
+    goalsForPerGame: 1.4,
+    goalsAgainstPerGame: 1.5,
+    pointsPerGame: 1.4,
+    averageOpponentRating: 1620,
+    recentMatches: [
+      { date: '2026-03-23', opponentId: 'EXT_020', opponentRating: 1580, goalsFor: 2, goalsAgainst: 2 },
+      { date: '2026-03-27', opponentId: 'EXT_021', opponentRating: 1660, goalsFor: 1, goalsAgainst: 2 },
+      { date: '2025-11-16', opponentId: 'EXT_022', opponentRating: 1540, goalsFor: 3, goalsAgainst: 1 },
+      { date: '2025-11-19', opponentId: 'EXT_023', opponentRating: 1690, goalsFor: 0, goalsAgainst: 1 },
+      { date: '2025-09-10', opponentId: 'EXT_024', opponentRating: 1610, goalsFor: 1, goalsAgainst: 1 },
+    ],
+  },
+  'team-del': {
+    teamId: 'team-del',
+    rating: 1710,
+    goalsForPerGame: 1.7,
+    goalsAgainstPerGame: 1.3,
+    pointsPerGame: 1.7,
+    averageOpponentRating: 1675,
+    recentMatches: [
+      { date: '2026-03-22', opponentId: 'EXT_030', opponentRating: 1650, goalsFor: 2, goalsAgainst: 1 },
+      { date: '2026-03-26', opponentId: 'EXT_031', opponentRating: 1720, goalsFor: 1, goalsAgainst: 1 },
+      { date: '2025-11-15', opponentId: 'EXT_032', opponentRating: 1600, goalsFor: 3, goalsAgainst: 2 },
+      { date: '2025-11-18', opponentId: 'EXT_033', opponentRating: 1700, goalsFor: 0, goalsAgainst: 2 },
+      { date: '2025-09-08', opponentId: 'EXT_034', opponentRating: 1705, goalsFor: 2, goalsAgainst: 1 },
+    ],
+  },
+  'team-eth': {
+    teamId: 'team-eth',
+    rating: 1735,
+    goalsForPerGame: 1.6,
+    goalsAgainstPerGame: 1.1,
+    pointsPerGame: 1.8,
+    averageOpponentRating: 1660,
+    recentMatches: [
+      { date: '2026-03-24', opponentId: 'EXT_040', opponentRating: 1610, goalsFor: 2, goalsAgainst: 0 },
+      { date: '2026-03-28', opponentId: 'EXT_041', opponentRating: 1700, goalsFor: 1, goalsAgainst: 1 },
+      { date: '2025-11-17', opponentId: 'EXT_042', opponentRating: 1620, goalsFor: 2, goalsAgainst: 1 },
+      { date: '2025-11-20', opponentId: 'EXT_043', opponentRating: 1690, goalsFor: 1, goalsAgainst: 2 },
+      { date: '2025-09-09', opponentId: 'EXT_044', opponentRating: 1680, goalsFor: 2, goalsAgainst: 1 },
+    ],
+  },
+  'team-for': {
+    teamId: 'team-for',
+    rating: 1810,
+    goalsForPerGame: 2.0,
+    goalsAgainstPerGame: 1.0,
+    pointsPerGame: 2.0,
+    averageOpponentRating: 1735,
+    recentMatches: [
+      { date: '2026-03-22', opponentId: 'EXT_050', opponentRating: 1740, goalsFor: 2, goalsAgainst: 1 },
+      { date: '2026-03-26', opponentId: 'EXT_051', opponentRating: 1690, goalsFor: 3, goalsAgainst: 0 },
+      { date: '2025-11-15', opponentId: 'team-aur', opponentRating: 1880, goalsFor: 1, goalsAgainst: 1 },
+      { date: '2025-11-18', opponentId: 'EXT_052', opponentRating: 1720, goalsFor: 2, goalsAgainst: 2 },
+      { date: '2025-09-08', opponentId: 'EXT_053', opponentRating: 1770, goalsFor: 1, goalsAgainst: 0 },
+    ],
+  },
+  'team-gal': {
+    teamId: 'team-gal',
+    rating: 1755,
+    goalsForPerGame: 1.8,
+    goalsAgainstPerGame: 1.2,
+    pointsPerGame: 1.8,
+    averageOpponentRating: 1700,
+    recentMatches: [
+      { date: '2026-03-25', opponentId: 'team-bel', opponentRating: 1810, goalsFor: 1, goalsAgainst: 1 },
+      { date: '2026-03-29', opponentId: 'EXT_060', opponentRating: 1660, goalsFor: 2, goalsAgainst: 1 },
+      { date: '2025-11-16', opponentId: 'EXT_061', opponentRating: 1720, goalsFor: 1, goalsAgainst: 2 },
+      { date: '2025-11-19', opponentId: 'EXT_062', opponentRating: 1640, goalsFor: 3, goalsAgainst: 1 },
+      { date: '2025-09-10', opponentId: 'EXT_063', opponentRating: 1710, goalsFor: 2, goalsAgainst: 0 },
+    ],
+  },
+  'team-hel': {
+    teamId: 'team-hel',
+    rating: 1425,
+    goalsForPerGame: 0.9,
+    goalsAgainstPerGame: 1.9,
+    pointsPerGame: 0.7,
+    averageOpponentRating: 1530,
+    recentMatches: [
+      { date: '2026-03-24', opponentId: 'EXT_070', opponentRating: 1500, goalsFor: 1, goalsAgainst: 2 },
+      { date: '2026-03-28', opponentId: 'EXT_071', opponentRating: 1560, goalsFor: 0, goalsAgainst: 3 },
+      { date: '2025-11-17', opponentId: 'EXT_072', opponentRating: 1480, goalsFor: 1, goalsAgainst: 1 },
+      { date: '2025-11-20', opponentId: 'EXT_073', opponentRating: 1610, goalsFor: 0, goalsAgainst: 2 },
+      { date: '2025-09-09', opponentId: 'EXT_074', opponentRating: 1500, goalsFor: 2, goalsAgainst: 1 },
+    ],
+  },
+};
