@@ -14,7 +14,8 @@
       "files": [
         "src/lib/model/**/*.{ts,tsx}",
         "src/lib/simulation/**/*.{ts,tsx}",
-        "src/lib/normalization/**/*.{ts,tsx}"
+        "src/lib/normalization/**/*.{ts,tsx}",
+        "src/lib/scheduler/**/*.{ts,tsx}"
       ],
       "rules": {
         "no-restricted-imports": [

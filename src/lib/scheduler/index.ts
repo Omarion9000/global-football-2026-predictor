@@ -1,5 +1,25 @@
-// TODO(Phase 5): Vercel Cron dispatcher and lifecycle handlers (T_MINUS_3H,
-// T_MINUS_1H, T_ZERO, HT, FT). Composes engine inputs, invokes predictMatch,
-// and writes the append-only prediction row plus model_runs entry.
-// See docs/05_BUILD_ROADMAP.md Phase 5.
-export {};
+export {
+  PREDICTION_RUN_TYPES,
+  PRE_MATCH_RUN_TYPES,
+  IN_PLAY_RUN_TYPES,
+  POST_MATCH_RUN_TYPES,
+  type PredictionRunType,
+} from './runTypes';
+export { getScheduledFor } from './scheduleWindows';
+export {
+  getDuePredictionRuns,
+  type DuePredictionRunCandidate,
+  type GetDuePredictionRunsParams,
+  type GetDuePredictionRunsResult,
+} from './dueRuns';
+export {
+  executePredictionRun,
+  type ExecuteCandidate,
+  type ExecuteDeps,
+  type ExecuteResult,
+} from './executePredictionRun';
+export {
+  runScheduler,
+  type RunSchedulerParams,
+  type RunSchedulerResult,
+} from './schedulerService';
