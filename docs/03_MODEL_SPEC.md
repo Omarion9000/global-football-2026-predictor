@@ -343,7 +343,9 @@ For a single fixture's match-card display, Monte Carlo is also used to confirm:
 - `top5Scorelines` — the five most frequent `(i, j)` pairs and their relative frequencies.
 - `meanGoals` — empirical average of `homeGoals + awayGoals` across simulations.
 
-If the simulator disagrees with the analytic marginals by more than `0.5%` with `N = 10_000`, the engine returns a warning in `PredictionOutput.warnings` and the scheduler logs it; the analytic values are preferred for headline probabilities, and the simulator remains the source of truth for tournament-level rollups only.
+If the simulator disagrees with the analytic marginals by more than `1.5%` with `N = 10_000`, the engine returns a warning in `PredictionOutput.warnings` and the scheduler logs it; the analytic values are preferred for headline probabilities, and the simulator remains the source of truth for tournament-level rollups only.
+
+The threshold is `1.5%` rather than `0.5%` because the per-outcome sampling standard error at `N = 10_000` is `sqrt(p(1-p)/N) ≈ 0.005` for `p ≈ 0.5` — a 0.5% cut-off sits at roughly 1σ and would warn on most healthy runs. `1.5%` is approximately a 3σ practical tolerance: it stays quiet for ordinary simulation noise and only fires on genuine divergence (numerical bugs, λ outside the bounded matrix's well-modeled range, seed pathologies).
 
 ---
 
@@ -463,7 +465,15 @@ Component definitions:
 - `lineupUncertainty` — `1.0` before `T_MINUS_1H`; `0.4` at `T_MINUS_1H` if lineups partial; `0.0` once full lineups known.
 - `volatilityScore` — composite of `recentFormVariance(home) + recentFormVariance(away) + abs(restDaysHome - restDaysAway) / 7`, normalised to `[0, 1]`.
 
-`confidence` is rendered in the UI as a discrete band (low / medium / high) to avoid implying false precision.
+`confidence` is rendered in the UI as a discrete band (LOW / MEDIUM / HIGH) to avoid implying false precision. The V1 cut points are:
+
+| Band     | Range                            |
+|----------|----------------------------------|
+| `LOW`    | `confidenceScore < 0.40`         |
+| `MEDIUM` | `0.40 <= confidenceScore < 0.70` |
+| `HIGH`   | `confidenceScore >= 0.70`        |
+
+The thresholds are centred around `baseConfidence = 0.55` so that ordinary, well-supported predictions land in `MEDIUM`, and `LOW` / `HIGH` only appear under meaningful perturbation of the underlying components.
 
 ---
 
@@ -493,9 +503,11 @@ Every prediction row stores `model_version`. Versioning is semantic with strict 
 - **Minor (`v1.0.0 → v1.1.0`).** Parameter retuning (e.g. weights `w1..w5`, `α`, `β`, `ρ`, `κ`, `ξ`, `γ`). Structure unchanged. Older predictions remain valid for historical comparison.
 - **Major (`v1.0.0 → v2.0.0`).** Structural changes — adding bivariate Poisson, replacing the Poisson model with negative-binomial, introducing player-level features, etc.
 
-Frozen constants per `model_version` (Elo `K` table, Dixon-Coles `ρ`, multiplier defaults, weight tables, regression coefficients `c0..c4`) live in `src/lib/model/version.ts` (planned) as exported named constants. A version bump means a new export, not a mutation.
+Frozen constants per `model_version` (Elo `K` table, Dixon-Coles `ρ`, multiplier defaults, weight tables, regression coefficients `c0..c4`) live in `src/lib/model/version.ts` as exported named constants. A version bump means a new export, not a mutation.
 
 The Monte Carlo seed is **not** part of `model_version`; the same model can be re-simulated under different seeds for sensitivity analysis.
+
+**Current version.** The Phase 3 V1 engine ships as `MODEL_VERSION = "v0.1.0"`. This remains the active version unless and until a version bump is explicitly recorded. Any prediction row written under a prior `model_version` remains valid for historical comparison — old rows are never rewritten when the version changes (see the append-only rule in `CLAUDE.md` and `docs/06_CLAUDE_CODE_RULES.md` §2).
 
 ---
 

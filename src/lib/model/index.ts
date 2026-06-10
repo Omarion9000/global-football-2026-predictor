@@ -1,5 +1,16 @@
-// TODO(Phase 3): Statistical engine — ratings, form, xG, expected goals, Poisson
-// scoreline matrix, and the predictMatch orchestrator. See docs/03_MODEL_SPEC.md.
-// This module is pure TypeScript. It MUST NOT import React, Next.js, components,
-// or app code. Enforced by .eslintrc.json.
-export {};
+export { MODEL_VERSION } from './version';
+export { calculateTeamStrength, type TeamStrengthBreakdown } from './teamStrength';
+export { calculateExpectedGoals, type ExpectedGoalsBreakdown } from './expectedGoals';
+export {
+  generateScorelineMatrix,
+  marginalProbabilities,
+  topScorelines,
+  type ScorelineMarginals,
+} from './scorelines';
+export {
+  calculateConfidenceBand,
+  calculateConfidenceScore,
+  deriveConfidenceComponents,
+  type ConfidenceComponents,
+} from './confidence';
+export { predictMatch, type PredictMatchOptions } from './predict';
