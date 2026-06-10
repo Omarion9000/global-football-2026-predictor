@@ -63,17 +63,18 @@ Full detail in `docs/05_BUILD_ROADMAP.md`. Do not skip ahead.
 
 ## Commands
 
-_To be populated in Phase 1 once `package.json` exists. Expected entries:_
+```
+pnpm dev            # local Next.js dev server (http://localhost:3000)
+pnpm build          # production build
+pnpm start          # serve the production build
+pnpm test           # Vitest — watch mode in TTY, one-shot in CI
+pnpm test --watch   # Vitest in explicit watch mode
+pnpm lint           # ESLint via `next lint`, including the engine-isolation boundary rule
+pnpm typecheck      # tsc --noEmit
+# Supabase + Vercel commands will be documented here once Phase 4/5 land.
+```
 
-```
-pnpm dev          # local Next.js dev server
-pnpm build        # production build
-pnpm test         # Vitest engine tests
-pnpm test --watch # watch a single suite
-pnpm lint         # ESLint, including import-boundary rules
-pnpm typecheck    # tsc --noEmit
-# Supabase + Vercel commands documented here once Phase 4/5 land.
-```
+`next lint` is deprecated upstream and will be removed in Next.js 16; migration to the ESLint CLI is queued as a follow-up. Vitest defaults to watch mode in a TTY and one-shot when `CI=true` is set.
 
 ## Tooling versions
 

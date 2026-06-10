@@ -1,0 +1,40 @@
+{
+  "root": true,
+  "extends": ["next/core-web-vitals"],
+  "ignorePatterns": [
+    "node_modules",
+    ".next",
+    "out",
+    "build",
+    "coverage",
+    "next-env.d.ts"
+  ],
+  "overrides": [
+    {
+      "files": [
+        "src/lib/model/**/*.{ts,tsx}",
+        "src/lib/simulation/**/*.{ts,tsx}",
+        "src/lib/normalization/**/*.{ts,tsx}"
+      ],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              "react",
+              "react/*",
+              "react-dom",
+              "react-dom/*",
+              "next",
+              "next/*",
+              "@/components",
+              "@/components/*",
+              "@/app",
+              "@/app/*"
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
