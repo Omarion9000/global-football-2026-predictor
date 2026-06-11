@@ -4,7 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project summary
 
-**World Cup 2026 Predictor** — a portfolio-grade full-stack football analytics platform that estimates outcome probabilities for every FIFA World Cup 2026 match. The engine uses Elo-style team ratings, recent form with exponential decay, an xG approximation, a Poisson scoreline matrix with Dixon-Coles correction, and Monte Carlo simulation. Scheduled prediction runs are stored append-only and evaluated post-match.
+A portfolio-grade full-stack football analytics platform that estimates outcome probabilities for every match of the 2026 international football tournament. The engine uses Elo-style team ratings, recent form with exponential decay, an xG approximation, a Poisson scoreline matrix with Dixon-Coles correction, and Monte Carlo simulation. Scheduled prediction runs are stored append-only and evaluated post-match.
+
+**Public-facing product name: "Global Football 2026 Predictor".** Use this in deployed UI (page titles, masthead, OpenGraph metadata, marketing copy, footer wordmark, social previews). The repository directory and git remote keep the descriptive working title `world-cup-2026-predictor`; the working title is internal-only and never appears in public branding. See `docs/01_PRODUCT_BRIEF.md` §9 and `docs/04_DATA_AND_LEGAL_POLICY.md` §3.6 for the rationale.
 
 Stack: Next.js (App Router), TypeScript (strict), Tailwind CSS, Supabase/PostgreSQL, Vercel + Vercel Cron, Recharts, Vitest.
 
@@ -19,6 +21,7 @@ Stack: Next.js (App Router), TypeScript (strict), Tailwind CSS, Supabase/Postgre
 7. **The prediction engine must be deterministic and testable.** Pure functions, typed inputs/outputs, one seeded RNG utility, Vitest coverage.
 8. **Large refactors require explanation before execution.** State the scope, the reason, and the blast radius first; wait for confirmation before touching multiple modules.
 9. **Avoid scope creep.** Player cards, live minute-by-minute probability, and streaming links are V2+ and require explicit approval.
+10. **Do not use restricted tournament marks in product UI.** "FIFA", "FIFA World Cup", "FIFA World Cup 26 / 2026", "World Cup 26 / 2026", "World Cup", "Mundial", "Copa Mundial", "Coupe du Monde", "Weltmeisterschaft", and equivalent translations / near-marks MUST NOT appear in product branding, page titles, OpenGraph metadata, route names, domain names, marketing copy, masthead, navigation, footers, or any repeated layout chrome. They may appear only in legal disclaimers / non-affiliation statements, internal documentation, source-evaluation notes, code comments, commit messages, migration files, and explicitly-reviewed editorial body copy. The default disposition is **do not use** — refer to the tournament as "the 2026 tournament" or use the public product name. See `docs/04_DATA_AND_LEGAL_POLICY.md` §3.6 for the full restricted-terms table and the limited carve-out.
 
 ## Architecture boundaries
 
@@ -96,9 +99,12 @@ pnpm typecheck      # tsc --noEmit
 
 - **No betting framing.** No odds formats, stake suggestions, affiliate links, or "value bet" language.
 - **No unauthorized streams.** No embedded video, no stream URLs, no how-to-watch instructions outside licensed broadcaster homepages.
-- **No copyrighted assets.** No FIFA, confederation, federation, Panini, or EA Sports artwork, marks, or player photographs. No agency images. Future "data cards" must be original designs.
+- **No copyrighted assets.** No FIFA, confederation, federation, broadcaster, sponsor, Panini, or EA Sports artwork, marks, typefaces, mascots, slogans, or trade dress. No agency images. No official tournament chrome (trophy silhouette, mascot artwork, official posters, host city logos). Future "data cards" must be original designs.
+- **No restricted tournament marks in product UI.** See rule 10 above and `docs/04_DATA_AND_LEGAL_POLICY.md` §3.6.
+- **No flag asset without provenance.** National flag assets are gated on the registry defined in `docs/08_FLAG_AND_VISUAL_ASSET_POLICY.md`. Phase 6 may use placeholder geometric mock flags only — real country flags are deferred until the registry is populated and reviewed.
+- **Independence disclaimer always rendered.** Every public surface renders the disclaimer text from `docs/04` §3.6 in the footer. It is not hidden behind dropdowns or off-screen on mobile.
 - **Licensed or open data only.** Every data source is recorded in the `data_sources` table with its licence and attribution. Scraping prohibited sources is not permitted.
-- Full policy: `docs/04_DATA_AND_LEGAL_POLICY.md`.
+- Full policies: `docs/04_DATA_AND_LEGAL_POLICY.md` (data + IP + branding) and `docs/08_FLAG_AND_VISUAL_ASSET_POLICY.md` (flag asset registry, provenance, wave animation).
 
 ## What not to build yet
 

@@ -73,3 +73,45 @@ The project is considered successful when:
 ## 8. Tone and brand
 
 Calm, analytical, modern. The visual language draws from data-journalism rather than sportsbook design. Typography-led, restrained colour palette, generous whitespace, motion used sparingly to communicate state changes.
+
+> **Note.** The Phase 6 visual direction in `docs/07_DESIGN_SYSTEM.md` evolved the aesthetic toward a warm tournament fan-experience palette. The "calm / restrained / data-journalism" phrasing above is preserved for historical accuracy but is superseded by `docs/07` for any implementation decision. The non-negotiables — no sportsbook framing, no copyrighted assets, accessibility-first — remain.
+
+## 9. Public branding
+
+The repository directory name (`world-cup-2026-predictor`) and the conceptual project name used in internal documentation may continue to use the descriptive working title. The **public product name** — what appears in deployed UI page titles, masthead, OpenGraph metadata, marketing pages, social previews, and any user-facing surface — must avoid restricted FIFA / tournament terms (see `docs/04_DATA_AND_LEGAL_POLICY.md` §3.6).
+
+### 9.1 The public product name
+
+**Decision: the public product name is "Global Football 2026 Predictor".**
+
+This is the name that appears in deployed UI, page titles, masthead, OpenGraph metadata, marketing copy, social previews, and any user-facing surface. It is binding from this point forward.
+
+Preserves the temporal anchor (2026) and the analytical framing ("predictor"). Replaces the restricted descriptor "World Cup" with the generic, unrestricted descriptor "Global Football."
+
+A future variant, **"Global Football Probability Lab"**, is reserved as a possible evergreen rename if the project survives beyond the 2026 tournament. It is not used in Phase 6.
+
+### 9.2 Why rename
+
+Continuing to brand the public product as "World Cup 2026 Predictor" would carry two compounding risks:
+
+1. **Trademark dilution and likelihood-of-confusion.** "World Cup" is a heavily protected common-law and registered mark. Even with an independence disclaimer, a public surface that styles itself as a "World Cup 2026 Predictor" can be argued to imply an official association.
+2. **Cease-and-desist exposure.** A portfolio project that uses the protected name in its masthead, page title, and OpenGraph image puts itself unnecessarily in the path of routine IP enforcement. The analytical content is unchanged; only the wrapping name needs to move.
+
+Renaming the public surface costs nothing in product value and eliminates both risks.
+
+### 9.3 Scope of the rename
+
+The rename applies to:
+
+- the `<title>` tag and OpenGraph metadata on every page;
+- the masthead / wordmark in the header;
+- the README's public "what it does" copy and any landing copy;
+- marketing pages, social preview images, and footers.
+
+It does NOT apply to:
+
+- the git repository name on disk or on GitHub (may stay `world-cup-2026-predictor`);
+- internal documentation, source comments, migration files, or any non-public surface where the working title is descriptively useful;
+- the presence of restricted terms in disclaimer / non-affiliation copy when used to declare what the product is *not*.
+
+This split is consistent with the disclosure carve-out in `docs/04_DATA_AND_LEGAL_POLICY.md` §1.3 and the FIFA / tournament IP hardening rules in `docs/04` §3.6.

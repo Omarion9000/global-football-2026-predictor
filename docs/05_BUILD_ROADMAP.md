@@ -249,7 +249,13 @@ Schema field names follow `CLAUDE.md`: every prediction row carries `run_type`, 
 
 ## Phase 6 — UI shell on stored predictions
 
-**Goal.** Build the schedule and match-detail pages that render persisted predictions. The UI computes nothing.
+**Goal.** Build the schedule and match-detail pages that render persisted predictions, in the World Cup / fan-experience visual direction defined by `docs/07_DESIGN_SYSTEM.md` (warm tournament palette, collectible match cards with the optional foil interaction in §9, broadcast-style prediction timeline, match-center detail page). The UI computes nothing.
+
+**Design direction.** Prioritise **match cards, prediction cards, countdowns, and the match-center layout**. National identity is conveyed via country codes, team names, and abstract colour bands only — never federation crests, kits, or photographs. Foil / tilt effects on match cards are optional and must carry a still-frame equivalent and respect `prefers-reduced-motion`. See `docs/07_DESIGN_SYSTEM.md` §8–§11 for component direction, the holographic-card guidance, the SVG flag wave specification, and the prohibited visual language.
+
+**Public branding.** The deployed UI uses the public product name **"Global Football 2026 Predictor"** per `docs/01_PRODUCT_BRIEF.md` §9. Restricted FIFA / tournament terms enumerated in `docs/04_DATA_AND_LEGAL_POLICY.md` §3.6 — including "FIFA" standalone, "FIFA World Cup", "World Cup", "Mundial", and equivalent translations — do NOT appear in product UI, page titles, OpenGraph metadata, masthead, navigation, route names, domain configuration, or repeated layout chrome. Every public page renders the independence disclaimer from `docs/04` §3.6 in the footer.
+
+**Legal gate on flag assets.** No flag SVG, flag image, or flag asset may be added to the codebase or rendered in any public surface unless its source and licence are documented per `docs/08_FLAG_AND_VISUAL_ASSET_POLICY.md` §5 (asset registry). Phase 6 may implement a `WavingFlag` component using **placeholder geometric mock flags only** — internally authored simple SVGs with no real national symbology. Real country flag assets are deferred until the flag asset registry is created, populated, and reviewed in a follow-up phase. SVG wave animation, if implemented in Phase 6, follows the constraints in `docs/07` §11 and `docs/08` §6, applied only to the placeholder flags.
 
 **Deliverables.**
 - `src/app/(public)/schedule/page.tsx` — Server Component listing matches grouped by day.

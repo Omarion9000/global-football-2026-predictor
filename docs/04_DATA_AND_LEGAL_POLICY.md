@@ -90,9 +90,64 @@ The public demo specifically:
 
 ### 3.5 Naming and trade dress
 
-- The product name "World Cup 2026 Predictor" is descriptive and used independently.
+- The repository directory name (`world-cup-2026-predictor`) is a descriptive working title used in internal documentation and on the git remote. The public product name avoids restricted FIFA / tournament terms per §3.6 and follows the recommendation in `docs/01_PRODUCT_BRIEF.md` §9.
 - No tagline or sub-brand may imitate FIFA, broadcaster, or sportsbook trade dress.
 - Marketing materials must include the independence statement from §1.6.
+
+### 3.6 FIFA / tournament IP hardening
+
+This subsection is binding on every public surface of the product, including domain names, URL paths, route names, page titles, OpenGraph metadata and `og:image` content, repeated layout chrome (headers, footers, breadcrumbs), marketing pages, social previews, and any deployed copy.
+
+**Prohibited assets and likeness.** The product does not use, reproduce, or imitate:
+
+- FIFA wordmark, FIFA emblem, FIFA logos in any iteration.
+- The FIFA World Cup wordmark, official tournament emblem(s), or any official competition mark for FIFA World Cup 26 / 2026 / any prior or future edition.
+- The official tournament trophy silhouette, mascot artwork, official slogan, or official posters.
+- Host city / host stadium official logos and look-and-feel systems.
+- Official tournament typefaces and bespoke type systems.
+- Official broadcast graphics, lower-thirds, branded match-clock overlays, or any broadcaster's visual identity.
+
+**Prohibited naming and copy in product UI.** The following terms are restricted and do not appear in public branding, product names, route slugs, page titles, OpenGraph descriptions, marketing pages, headers, footers, navigation labels, or repeated layout elements:
+
+| Restricted term                | Notes                                                   |
+|--------------------------------|---------------------------------------------------------|
+| "FIFA"                         | Standalone trademark owned by Fédération Internationale de Football Association — restricted in product branding even without the "World Cup" suffix |
+| "FIFA World Cup"               | Marks owned by FIFA                                     |
+| "FIFA World Cup 26"            | Marks owned by FIFA                                     |
+| "FIFA World Cup 2026"          | Marks owned by FIFA                                     |
+| "World Cup 26"                 | Implies association with the official tournament        |
+| "World Cup 2026"               | Implies association with the official tournament        |
+| "World Cup"                    | Common-law mark and dilution risk                       |
+| "Mundial"                      | Spanish/Portuguese near-mark                            |
+| "Copa Mundial"                 | Spanish near-mark                                       |
+| "Coupe du Monde"               | French near-mark                                        |
+| "Weltmeisterschaft" / "WM"     | German near-mark                                        |
+| "Coppa del Mondo"              | Italian near-mark                                       |
+| "Чемпионат мира"              | Russian near-mark                                       |
+| Other translations / near-marks | Treat the same                                          |
+
+**Limited permitted uses.** Restricted terms may appear ONLY in:
+
+- legal disclaimers and non-affiliation statements (e.g. "Not affiliated with FIFA or the FIFA World Cup");
+- internal documentation, source-evaluation notes, code comments, commit messages, and migration files where descriptive accuracy is required;
+- clearly descriptive editorial body copy after explicit review — for example, a post-tournament accuracy retrospective referencing the actual tournament name in a paragraph of body copy that renders the independence disclaimer on the same page.
+
+The default disposition is **do not use**. A surface that needs to reference the tournament should refer to it as "the 2026 tournament," "the upcoming international tournament," or use the safer public branding established by `docs/01_PRODUCT_BRIEF.md` §9.
+
+**Independence disclaimer.** Every public surface of the product must render an independence disclaimer of the form:
+
+> Independent analytical project. Not affiliated with FIFA, any confederation, any federation, or any broadcaster. The product does not use official FIFA or tournament marks, logos, typefaces, mascots, slogans, or trade dress. Predictions are probabilistic estimates produced by a statistical model, not guarantees about real-world outcomes.
+
+The disclaimer is permanent footer content. It is not hidden in modal dialogs, behind dropdowns, or off-screen on mobile. It is not styled to be visually subordinate beyond the footer text scale.
+
+**Public branding.** The public product name avoids the restricted terms above. See `docs/01_PRODUCT_BRIEF.md` §9 for the recommended public name and the rationale. The repository directory name may differ from the public name; only the public-facing UI is constrained by this subsection.
+
+**AI / code-agent enforcement.** AI agents working on this repository:
+
+- Refuse to add restricted terms to product UI, page titles, OpenGraph metadata, marketing copy, social previews, or repeated layout chrome.
+- Refuse to add official FIFA, tournament, host-city, or broadcaster artwork or typefaces.
+- Surface any ambiguity rather than guessing — if a piece of body copy could be read as restricted product branding, ask before shipping it.
+- Treat the §3.6 list as additive to the §3.1 list, never as a relaxation of it.
 
 ---
 
