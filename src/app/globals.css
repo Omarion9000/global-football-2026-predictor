@@ -55,8 +55,8 @@ body {
   border-radius: inherit;
   pointer-events: none;
   background: radial-gradient(
-    320px circle at var(--foil-x) var(--foil-y),
-    rgba(214, 168, 79, calc(0.12 * var(--foil-opacity))),
+    360px circle at var(--foil-x) var(--foil-y),
+    rgba(214, 168, 79, calc(0.18 * var(--foil-opacity))),
     transparent 55%
   );
   transition: opacity 250ms cubic-bezier(0.2, 0.8, 0.2, 1);

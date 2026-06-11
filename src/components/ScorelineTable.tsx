@@ -17,27 +17,31 @@ export function ScorelineTable({
     );
   }
   return (
-    <table className="w-full overflow-hidden rounded-md border border-border text-sm">
-      <thead className="bg-surface-strong">
-        <tr className="font-mono text-[10px] uppercase tracking-widest text-text-secondary">
-          <th className="px-3 py-2 text-left">Rank</th>
-          <th className="px-3 py-2 text-left">
+    <table className="w-full overflow-hidden rounded-md border border-surface-strong text-sm">
+      <thead>
+        <tr className="border-b border-surface-strong bg-surface-strong font-mono text-[10px] uppercase tracking-widest text-text-secondary">
+          <th className="w-12 px-3 py-2 text-left">Rank</th>
+          <th className="px-3 py-2 text-left text-text-primary">
             Score ({teamACode}–{teamBCode})
           </th>
-          <th className="px-3 py-2 text-right">Probability</th>
+          <th className="px-3 py-2 text-right text-text-primary">Probability</th>
         </tr>
       </thead>
       <tbody>
         {scorelines.map((s, i) => (
           <tr
             key={`${s.teamAGoals}-${s.teamBGoals}`}
-            className={i % 2 === 0 ? 'bg-surface' : 'bg-surface-muted'}
+            className={`transition-colors hover:bg-surface-muted ${
+              i % 2 === 0 ? 'bg-surface' : 'bg-surface-muted/60'
+            }`}
           >
             <td className="px-3 py-2 font-mono tabular-nums text-text-secondary">
-              {i + 1}
+              {String(i + 1).padStart(2, '0')}
             </td>
             <td className="px-3 py-2 font-mono tabular-nums font-semibold text-text-primary">
-              {s.teamAGoals}–{s.teamBGoals}
+              <span className="text-accent-red">{s.teamAGoals}</span>
+              <span className="px-1 text-text-secondary">–</span>
+              <span className="text-accent-green">{s.teamBGoals}</span>
             </td>
             <td className="px-3 py-2 text-right font-mono tabular-nums text-text-primary">
               {(s.probability * 100).toFixed(1)}%

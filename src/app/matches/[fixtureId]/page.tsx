@@ -17,6 +17,9 @@ import {
   getDemoScorelinesForRun,
   getDemoTeams,
 } from '@/lib/data/demoPredictions';
+import { MODEL_VERSION } from '@/lib/model';
+import { formatExecutedAt, formatKickoff } from '@/lib/utils/format';
+import { humanizeWarnings } from '@/lib/utils/warnings';
 import { PREDICTION_RUN_TYPES, type PredictionRunType } from '@/lib/types';
 
 const STAGE_LABEL: Record<string, string> = {
@@ -68,39 +71,70 @@ export default async function MatchDetailPage({
     },
   );
 
+  const humanizedWarnings = recent ? humanizeWarnings(recent.run.warnings) : [];
+
   return (
-    <AppShell>
-      <section className="mx-auto max-w-4xl px-6 pt-10 pb-6">
-        <div className="flex flex-wrap items-center gap-3">
-          <StatusBadge status={fixture.status} />
-          <span className="font-mono text-[10px] uppercase tracking-widest text-text-secondary">
-            {STAGE_LABEL[fixture.stage] ?? fixture.stage}
-            {fixture.groupCode != null ? ` · Group ${fixture.groupCode}` : ''}
-          </span>
+    <AppShell modelVersion={MODEL_VERSION}>
+      {/* Match-center header */}
+      <section className="border-b border-surface-strong bg-surface-muted">
+        <div className="mx-auto max-w-5xl px-6 py-10 sm:py-12">
+          <div className="flex flex-wrap items-center gap-3">
+            <StatusBadge status={fixture.status} />
+            <span className="font-mono text-[10px] uppercase tracking-widest text-text-secondary">
+              {STAGE_LABEL[fixture.stage] ?? fixture.stage}
+              {fixture.groupCode != null
+                ? ` · Group ${fixture.groupCode}`
+                : ''}
+            </span>
+          </div>
+
+          <div className="mt-6 grid items-center gap-4 sm:grid-cols-[1fr_auto_1fr]">
+            <div className="flex items-center gap-4">
+              <WavingFlag seed={teamA.id} label={teamA.code} size={48} />
+              <div>
+                <p className="font-mono text-xs uppercase tracking-widest text-text-secondary">
+                  {teamA.code}
+                </p>
+                <p className="text-2xl font-bold text-accent-red sm:text-3xl">
+                  {teamA.name}
+                </p>
+              </div>
+            </div>
+            <p className="font-mono text-base uppercase tracking-widest text-text-secondary sm:text-xl">
+              vs
+            </p>
+            <div className="flex items-center gap-4 sm:justify-end">
+              <div className="sm:text-right">
+                <p className="font-mono text-xs uppercase tracking-widest text-text-secondary">
+                  {teamB.code}
+                </p>
+                <p className="text-2xl font-bold text-accent-green sm:text-3xl">
+                  {teamB.name}
+                </p>
+              </div>
+              <WavingFlag seed={teamB.id} label={teamB.code} size={48} />
+            </div>
+          </div>
+
+          <div className="mt-6 flex flex-wrap items-center gap-3 text-sm text-text-secondary">
+            <span className="font-mono tabular-nums">
+              {formatKickoff(fixture.kickoffUtc)}
+            </span>
+            <span aria-hidden="true">·</span>
+            <span>
+              {fixture.venue.venueName}, {fixture.venue.venueCity},{' '}
+              {fixture.venue.venueCountry}
+            </span>
+          </div>
         </div>
-
-        <h1 className="mt-4 flex items-center gap-4 text-2xl font-bold sm:text-3xl">
-          <WavingFlag seed={teamA.id} label={teamA.code} size={40} />
-          <span className="text-accent-red">{teamA.name}</span>
-          <span className="px-2 font-mono text-base font-normal text-text-secondary">
-            vs
-          </span>
-          <span className="text-accent-green">{teamB.name}</span>
-          <WavingFlag seed={teamB.id} label={teamB.code} size={40} />
-        </h1>
-
-        <p className="mt-3 text-sm text-text-secondary">
-          {fixture.venue.venueName} · {fixture.venue.venueCity},{' '}
-          {fixture.venue.venueCountry} ·{' '}
-          {new Date(fixture.kickoffUtc).toUTCString()}
-        </p>
       </section>
 
       {recent ? (
-        <section className="mx-auto max-w-4xl space-y-6 px-6 pb-16">
-          <div className="rounded-lg border border-border bg-surface p-6 shadow-card">
-            <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-              <h2 className="text-xl font-semibold text-text-primary">
+        <section className="mx-auto max-w-5xl space-y-8 px-6 py-10">
+          {/* Headline probabilities */}
+          <div className="rounded-xl border border-accent-gold/25 bg-paper bg-surface p-6 shadow-card-foil sm:p-8">
+            <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+              <h2 className="text-xl font-semibold text-text-primary sm:text-2xl">
                 Headline probabilities
               </h2>
               <ConfidenceBadge band={recent.run.confidence_band} />
@@ -112,41 +146,77 @@ export default async function MatchDetailPage({
               teamACode={teamA.code}
               teamBCode={teamB.code}
             />
-            <p className="mt-5 font-mono text-[10px] uppercase tracking-widest text-text-secondary">
+            <p className="mt-6 font-mono text-[10px] uppercase tracking-widest text-text-secondary">
               Model {recent.run.model_version} ·{' '}
               {RUN_TYPE_LABEL[recent.run.run_type]} · executed{' '}
-              {new Date(recent.run.executed_at).toUTCString()}
+              {formatExecutedAt(recent.run.executed_at)}
             </p>
-            {recent.run.warnings.length > 0 ? (
-              <ul className="mt-4 list-inside list-disc text-xs text-warning">
-                {recent.run.warnings.map((w, i) => (
-                  <li key={i}>{w}</li>
+
+            {humanizedWarnings.length > 0 ? (
+              <ul className="mt-5 space-y-3">
+                {humanizedWarnings.map((w, i) => (
+                  <li
+                    key={i}
+                    className={`rounded-md border p-3 text-sm ${
+                      w.kind === 'caution'
+                        ? 'border-warning/40 bg-warning/10 text-text-primary'
+                        : 'border-surface-strong bg-surface-muted text-text-primary'
+                    }`}
+                  >
+                    <p className="font-mono text-[10px] uppercase tracking-widest text-text-secondary">
+                      {w.title}
+                    </p>
+                    <p className="mt-1">{w.body}</p>
+                  </li>
                 ))}
               </ul>
             ) : null}
           </div>
 
-          <div className="grid gap-6 sm:grid-cols-2">
-            <div className="rounded-lg border border-border bg-surface p-6 shadow-card">
-              <p className="font-mono text-[10px] uppercase tracking-widest text-text-secondary">
-                Expected goals · {teamA.code}
-              </p>
-              <p className="mt-2 font-mono text-3xl font-bold tabular-nums text-accent-red">
-                {recent.run.team_a_expected_goals.toFixed(2)}
-              </p>
-            </div>
-            <div className="rounded-lg border border-border bg-surface p-6 shadow-card">
-              <p className="font-mono text-[10px] uppercase tracking-widest text-text-secondary">
-                Expected goals · {teamB.code}
-              </p>
-              <p className="mt-2 font-mono text-3xl font-bold tabular-nums text-accent-green">
-                {recent.run.team_b_expected_goals.toFixed(2)}
-              </p>
+          {/* Expected goals — integrated as a single block */}
+          <div className="rounded-xl border border-border bg-surface p-6 shadow-card sm:p-8">
+            <h2 className="mb-5 text-xl font-semibold text-text-primary sm:text-2xl">
+              Expected goals
+            </h2>
+            <div className="grid gap-6 sm:grid-cols-2">
+              <div className="rounded-lg border border-accent-red/20 bg-surface-muted p-5">
+                <div className="flex items-center gap-3">
+                  <WavingFlag
+                    seed={teamA.id}
+                    label={teamA.code}
+                    size={28}
+                  />
+                  <p className="font-mono text-[10px] uppercase tracking-widest text-text-secondary">
+                    {teamA.code}
+                  </p>
+                </div>
+                <p className="mt-3 font-mono text-4xl font-bold tabular-nums text-accent-red sm:text-5xl">
+                  {recent.run.team_a_expected_goals.toFixed(2)}
+                </p>
+                <p className="mt-1 text-xs text-text-secondary">xG</p>
+              </div>
+              <div className="rounded-lg border border-accent-green/20 bg-surface-muted p-5">
+                <div className="flex items-center gap-3">
+                  <WavingFlag
+                    seed={teamB.id}
+                    label={teamB.code}
+                    size={28}
+                  />
+                  <p className="font-mono text-[10px] uppercase tracking-widest text-text-secondary">
+                    {teamB.code}
+                  </p>
+                </div>
+                <p className="mt-3 font-mono text-4xl font-bold tabular-nums text-accent-green sm:text-5xl">
+                  {recent.run.team_b_expected_goals.toFixed(2)}
+                </p>
+                <p className="mt-1 text-xs text-text-secondary">xG</p>
+              </div>
             </div>
           </div>
 
-          <div className="rounded-lg border border-border bg-surface p-6 shadow-card">
-            <h2 className="mb-4 text-xl font-semibold text-text-primary">
+          {/* Top scorelines */}
+          <div className="rounded-xl border border-border bg-surface p-6 shadow-card sm:p-8">
+            <h2 className="mb-5 text-xl font-semibold text-text-primary sm:text-2xl">
               Top scorelines
             </h2>
             <ScorelineTable
@@ -160,12 +230,13 @@ export default async function MatchDetailPage({
             />
           </div>
 
-          <div className="rounded-lg border border-border bg-surface p-6 shadow-card">
-            <h2 className="mb-4 text-xl font-semibold text-text-primary">
+          {/* Prediction timeline — broadcast strip */}
+          <div className="rounded-xl border border-border bg-surface p-6 shadow-card sm:p-8">
+            <h2 className="mb-5 text-xl font-semibold text-text-primary sm:text-2xl">
               Prediction timeline
             </h2>
             <PredictionTimeline entries={timelineEntries} />
-            <p className="mt-3 text-xs text-text-secondary">
+            <p className="mt-4 text-xs text-text-secondary">
               Pre-match predictions land at T−3h and T−1h, with a kickoff
               snapshot. Half-time and full-time entries populate as live data
               becomes available.
@@ -173,7 +244,7 @@ export default async function MatchDetailPage({
           </div>
         </section>
       ) : (
-        <section className="mx-auto max-w-4xl px-6 pb-16">
+        <section className="mx-auto max-w-5xl px-6 py-10">
           <EmptyState
             title="No prediction yet"
             hint="Predictions populate as kickoff approaches."

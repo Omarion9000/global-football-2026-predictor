@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { ConfidenceBand, Fixture } from '@/lib/types';
+import { formatKickoff } from '@/lib/utils/format';
 import { ConfidenceBadge } from './ConfidenceBadge';
 import { Countdown } from './Countdown';
 import { MatchCardFoil } from './MatchCardFoil';
@@ -41,7 +42,7 @@ export function MatchCard({
     <MatchCardFoil>
       <Link
         href={`/matches/${fixture.id}`}
-        className="block rounded-lg border border-border bg-surface p-5 focus:outline-none"
+        className="flex h-full flex-col rounded-lg border border-accent-gold/25 bg-paper bg-surface p-5 shadow-card-foil transition-shadow hover:shadow-card-foil-hover focus:outline-none"
       >
         {/* Top strip: status + countdown */}
         <div className="flex items-start justify-between gap-3">
@@ -72,11 +73,16 @@ export function MatchCard({
           <WavingFlag seed={teamB.id} label={teamB.code} size={28} />
         </div>
 
-        {/* Venue strip */}
-        <p className="mt-3 text-xs text-text-secondary">
-          {fixture.venue.venueName} · {fixture.venue.venueCity},{' '}
-          {fixture.venue.venueCountry}
-        </p>
+        {/* Venue + kickoff strip */}
+        <div className="mt-3 flex flex-wrap items-baseline justify-between gap-2 text-xs text-text-secondary">
+          <span>
+            {fixture.venue.venueName} · {fixture.venue.venueCity},{' '}
+            {fixture.venue.venueCountry}
+          </span>
+          <span className="font-mono tabular-nums">
+            {formatKickoff(fixture.kickoffUtc)}
+          </span>
+        </div>
 
         {/* Prediction strip */}
         {prediction ? (
@@ -101,6 +107,12 @@ export function MatchCard({
             Prediction pending — populates as kickoff approaches.
           </p>
         )}
+
+        {/* CTA so visitors know the card is clickable. Lives at the bottom so
+            cards align even when prediction blocks vary in height. */}
+        <p className="mt-auto pt-5 text-right font-mono text-[10px] uppercase tracking-widest text-accent-gold">
+          View match center →
+        </p>
       </Link>
     </MatchCardFoil>
   );

@@ -1,11 +1,12 @@
 import type { PredictionRunType } from '@/lib/types';
+import { formatExecutedAt } from '@/lib/utils/format';
 
 const RUN_TYPE_LABELS: Record<PredictionRunType, string> = {
   T_MINUS_3H: 'T−3h',
   T_MINUS_1H: 'T−1h',
   T_ZERO: 'Kickoff',
-  HT: 'HT',
-  FT: 'FT',
+  HT: 'Half-time',
+  FT: 'Full-time',
 };
 
 export type PredictionTimelineEntry = {
@@ -16,9 +17,9 @@ export type PredictionTimelineEntry = {
   current?: boolean;
 };
 
-// Broadcast-strip chips per docs/07 §8. Available chips read solid; pending
-// chips read outlined. A single underline in accent-gold optionally marks the
-// "current" chip when supplied.
+// Broadcast-strip per docs/07 §8. Each chip is a small editorial block.
+// Filled chips read solid surface-strong; pending chips are dashed outlines.
+// The currently-selected chip carries an accent-gold underline.
 export function PredictionTimeline({
   entries,
 }: {
@@ -26,30 +27,28 @@ export function PredictionTimeline({
 }): React.ReactElement {
   return (
     <ol
-      className="flex flex-wrap items-stretch gap-2"
+      className="flex flex-wrap items-stretch gap-2 sm:gap-3"
       aria-label="Prediction timeline"
     >
       {entries.map((e) => (
         <li
           key={e.runType}
-          className={`relative rounded-sm border px-3 py-2 font-mono text-xs ${
+          className={`relative flex min-w-[112px] flex-col gap-1 rounded-md border px-3 py-3 font-mono ${
             e.available
-              ? 'border-surface-strong bg-surface-strong text-text-primary'
+              ? 'border-surface-strong bg-surface-strong text-text-primary shadow-panel'
               : 'border-dashed border-border bg-surface text-text-secondary'
           }`}
         >
           <p className="text-[10px] uppercase tracking-widest">
             {RUN_TYPE_LABELS[e.runType]}
           </p>
-          <p className="mt-1 tabular-nums">
-            {e.available
-              ? new Date(e.executedAt).toUTCString().slice(5, 22)
-              : 'pending'}
+          <p className="text-xs tabular-nums">
+            {e.available ? formatExecutedAt(e.executedAt) : 'pending'}
           </p>
           {e.current ? (
             <span
               aria-hidden="true"
-              className="absolute inset-x-2 bottom-0 h-0.5 rounded-full bg-accent-gold"
+              className="absolute inset-x-2 bottom-1 h-0.5 rounded-full bg-accent-gold"
             />
           ) : null}
         </li>

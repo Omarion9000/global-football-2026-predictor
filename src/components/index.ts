@@ -3,6 +3,11 @@ export { ConfidenceBadge } from './ConfidenceBadge';
 export { Countdown } from './Countdown';
 export { Disclosure } from './Disclosure';
 export { EmptyState } from './EmptyState';
+export {
+  FeaturedMatchPanel,
+  type FeaturedMatchPrediction,
+} from './FeaturedMatchPanel';
+export { HeroStats } from './HeroStats';
 export { MatchCard, type MatchCardPrediction } from './MatchCard';
 export { MatchCardFoil } from './MatchCardFoil';
 export {

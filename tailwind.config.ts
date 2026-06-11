@@ -79,6 +79,20 @@ const config: Config = {
       boxShadow: {
         card: '0 1px 2px rgba(28, 25, 23, 0.04), 0 4px 12px rgba(28, 25, 23, 0.06)',
         'card-hover': '0 2px 6px rgba(28, 25, 23, 0.08), 0 12px 32px rgba(28, 25, 23, 0.12)',
+        'card-foil':
+          'inset 0 0 0 1px rgba(214, 168, 79, 0.32), 0 1px 2px rgba(28, 25, 23, 0.04), 0 4px 14px rgba(28, 25, 23, 0.07)',
+        'card-foil-hover':
+          'inset 0 0 0 1px rgba(214, 168, 79, 0.55), 0 2px 6px rgba(28, 25, 23, 0.1), 0 14px 36px rgba(28, 25, 23, 0.14)',
+        panel:
+          'inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 1px 2px rgba(28, 25, 23, 0.05), 0 6px 18px rgba(28, 25, 23, 0.08)',
+      },
+      backgroundImage: {
+        // Subtle paper-grain plate used on card stock. Multiple low-opacity
+        // radial gradients composited together — no SVG payload, no PNG.
+        paper:
+          'radial-gradient(at 20% 18%, rgba(214, 168, 79, 0.05), transparent 55%),' +
+          ' radial-gradient(at 80% 82%, rgba(194, 65, 12, 0.045), transparent 55%),' +
+          ' radial-gradient(at 60% 30%, rgba(255, 248, 231, 0.6), transparent 60%)',
       },
     },
   },
