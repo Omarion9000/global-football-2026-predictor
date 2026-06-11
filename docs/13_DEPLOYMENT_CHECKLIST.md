@@ -74,6 +74,88 @@ The route handler (`src/app/api/cron/predictions/route.ts`) reads `Authorization
 
 This means the deployed preview is **safe even if `CRON_SECRET` is not configured**: missing secret in production → every cron-route request gets a 401. The UI pages don't depend on the cron route, so the deployed demo continues to render either way.
 
+---
+
+## 4a. Persistence smoke test
+
+The Phase 7D cron route is correct even when an authorized invocation returns `{"due": 0, "succeeded": 0, "skipped": 0, "failed": 0}` — that response simply means no lifecycle anchors were due at the current clock time. To validate the persistence path independently of the scheduler's due-window logic, run the manual smoke script:
+
+```bash
+vercel env pull .env.local --environment=production
+pnpm smoke:persist
+rm .env.local
+```
+
+What `smoke:persist` does:
+
+- Picks one known mock fixture (`fixture-004` — Galatea vs Helios).
+- Idempotently seeds the prerequisite rows the FK chain requires (`teams`, `fixtures`, `team_stats_snapshots`) from the same mock data the rest of the app uses. This step is a no-op once the rows are already present.
+- Builds a deterministic `PredictionInput` with a fixed RNG seed.
+- Runs `predictMatch` through the same engine the cron route uses.
+- Persists `data_snapshots`, `prediction_runs`, and `prediction_scorelines` through `repositoryFactory.createPredictionRepository()` / `createSnapshotRepository()` — Neon Postgres when `POSTGRES_URL` is set, in-memory otherwise.
+
+Expected first-run output (against Neon with `POSTGRES_URL` set, on a freshly migrated database):
+
+```json
+{
+  "fixtureId": "fixture-004",
+  "runType": "T_ZERO",
+  "modelVersion": "v0.1.0",
+  "backend": "postgres",
+  "seededTeams": 2,
+  "seededFixtures": 1,
+  "seededStatsSnapshots": 2,
+  "status": "INSERTED",
+  "predictionRunId": "...",
+  "topScorelineCount": 5
+}
+```
+
+Expected second-run output (same script, no changes):
+
+```json
+{
+  "fixtureId": "fixture-004",
+  "runType": "T_ZERO",
+  "modelVersion": "v0.1.0",
+  "backend": "postgres",
+  "seededTeams": 0,
+  "seededFixtures": 0,
+  "seededStatsSnapshots": 0,
+  "status": "SKIPPED_EXISTING",
+  "predictionRunId": "..."
+}
+```
+
+`SKIPPED_EXISTING` is the smoke test's success signal for the append-only contract — the SQL `UNIQUE (fixture_id, run_type, model_version, scheduled_for)` constraint fires, the script catches `DuplicatePredictionRunError`, and the original row is reported. The `seededX: 0` counts confirm the seed step is idempotent: `INSERT … ON CONFLICT DO NOTHING` for teams + fixtures, SELECT-then-INSERT against a deterministic `(team_id, captured_at='2026-06-10T00:00:00Z', source='mock-smoke')` tuple for `team_stats_snapshots`.
+
+After a successful first run the persistence tables should reflect:
+
+| Table                  | Expected delta |
+|------------------------|----------------|
+| `teams`                | +2 rows (`team-gal`, `team-hel`)                     |
+| `fixtures`             | +1 row (`fixture-004`)                               |
+| `team_stats_snapshots` | +2 rows (one per team; `source='mock-smoke'`)        |
+| `data_snapshots`       | +1 row (id = `smoke-snap-fixture-004-T_ZERO-v0.1.0`) |
+| `prediction_runs`      | +1 row (`fixture_id=fixture-004`, `run_type=T_ZERO`) |
+| `prediction_scorelines`| +5 rows referencing the new prediction_run id        |
+
+Verify in the Neon SQL Editor:
+
+```sql
+SELECT COUNT(*) FROM teams WHERE id IN ('team-gal', 'team-hel');
+SELECT COUNT(*) FROM fixtures WHERE id = 'fixture-004';
+SELECT COUNT(*) FROM team_stats_snapshots WHERE source = 'mock-smoke';
+SELECT COUNT(*) FROM data_snapshots WHERE fixture_id = 'fixture-004';
+SELECT COUNT(*) FROM prediction_runs WHERE fixture_id = 'fixture-004' AND run_type = 'T_ZERO';
+SELECT COUNT(*) FROM prediction_scorelines
+  WHERE prediction_run_id IN (
+    SELECT id FROM prediction_runs WHERE fixture_id = 'fixture-004' AND run_type = 'T_ZERO'
+  );
+```
+
+The smoke script never prints connection strings or driver internals — only the structured result JSON above. The full source-level safeguards (no `console.*` calls, no `NEXT_PUBLIC_` references, `import 'server-only'` at the top) are verified by `src/lib/data/smoke/__tests__/persistPredictionSmoke.test.ts` and `postgresSeed.test.ts`.
+
 ### Setting `CRON_SECRET` on Vercel
 
 Generate a random 32-byte hex string (do not commit it):

@@ -41,6 +41,8 @@ const FORBIDDEN_IMPORT_PATTERNS = [
   /from ['"]@\/lib\/data\/postgres/,
   /from ['"]@\/lib\/data\/persistence\/postgres/,
   /from ['"]@\/lib\/data\/persistence\/repositoryFactory/,
+  // Phase 7E — the persistence smoke service is also server-only.
+  /from ['"]@\/lib\/data\/smoke/,
   /from ['"]server-only/,
 ];
 

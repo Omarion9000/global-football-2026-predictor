@@ -63,6 +63,8 @@
               "@/lib/data/persistence/postgres",
               "@/lib/data/persistence/postgres/*",
               "@/lib/data/persistence/repositoryFactory",
+              "@/lib/data/smoke",
+              "@/lib/data/smoke/*",
               "server-only"
             ]
           }

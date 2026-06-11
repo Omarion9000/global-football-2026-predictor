@@ -237,7 +237,8 @@ The deployed UI today runs against mock fixtures and in-memory persistence. Conf
 | 7A        | ✅ Supabase-backed `PredictionRepository` + `SnapshotRepository` (alternate backend; tested with mocked clients) |
 | 7C        | ✅ Neon / Vercel Postgres-backed repositories (preferred production path; tested with mocked clients; migration script via `pnpm db:migrate:postgres`); schema applied to Production database |
 | 7D        | ✅ Cron route wired to `createPredictionRepository()` / `createSnapshotRepository()` — production-protected and persistence-ready. With `POSTGRES_URL` set, prediction runs land in Neon. Public UI remains demo-mode. |
-| **7E**    | 🟡 **Up next** — real `FixtureSource` adapter against a licensed provider                       |
+| 7E        | ✅ Server-side `pnpm smoke:persist` script validates Neon persistence end-to-end without waiting for cron lifecycle anchors (see [`docs/13`](docs/13_DEPLOYMENT_CHECKLIST.md) §4a). Public UI still reads the demo helper. |
+| **7F**    | 🟡 **Up next** — real `FixtureSource` adapter against an external football data provider        |
 | 8         | 🟡 Accuracy dashboard — Brier and log-loss trends, calibration plot, scoreline hit rate        |
 
 The detailed phased plan lives in [`docs/05_BUILD_ROADMAP.md`](docs/05_BUILD_ROADMAP.md).
