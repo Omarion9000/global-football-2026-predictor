@@ -9,6 +9,10 @@ import type {
   RunTypeRow,
 } from '../types';
 import { DuplicatePredictionRunError, isUniqueViolation } from './errors';
+import {
+  mapPostgresPredictionRunRow,
+  mapPostgresScorelineRow,
+} from './postgresRowMappers';
 
 /**
  * Neon Postgres implementation of the existing PredictionRepository interface.
@@ -62,13 +66,13 @@ export class PostgresPredictionRepository implements PredictionRepository {
           ${warningsJson}::jsonb
         )
         RETURNING *
-      `) as PredictionRunRow[];
+      `) as unknown[];
       if (rows.length === 0) {
         throw new Error(
           'PostgresPredictionRepository.insertPredictionRun: no row returned',
         );
       }
-      return rows[0];
+      return mapPostgresPredictionRunRow(rows[0]);
     } catch (err) {
       if (isUniqueViolation(err)) {
         throw new DuplicatePredictionRunError({
@@ -111,8 +115,8 @@ export class PostgresPredictionRepository implements PredictionRepository {
           ${r.rank}
         )
         RETURNING *
-      `) as PredictionScorelineRow[];
-      if (result[0]) inserted.push(result[0]);
+      `) as unknown[];
+      if (result[0]) inserted.push(mapPostgresScorelineRow(result[0]));
     }
     return inserted;
   }
@@ -120,8 +124,8 @@ export class PostgresPredictionRepository implements PredictionRepository {
   async getPredictionRunById(id: string): Promise<PredictionRunRow | null> {
     const rows = (await this.sql`
       SELECT * FROM prediction_runs WHERE id = ${id} LIMIT 1
-    `) as PredictionRunRow[];
-    return rows[0] ?? null;
+    `) as unknown[];
+    return rows[0] ? mapPostgresPredictionRunRow(rows[0]) : null;
   }
 
   async getLatestPredictionForFixture(
@@ -134,8 +138,8 @@ export class PostgresPredictionRepository implements PredictionRepository {
         AND run_type = ${runType}
       ORDER BY executed_at DESC
       LIMIT 1
-    `) as PredictionRunRow[];
-    return rows[0] ?? null;
+    `) as unknown[];
+    return rows[0] ? mapPostgresPredictionRunRow(rows[0]) : null;
   }
 
   async listPredictionHistoryForFixture(
@@ -145,8 +149,8 @@ export class PostgresPredictionRepository implements PredictionRepository {
       SELECT * FROM prediction_runs
       WHERE fixture_id = ${fixtureId}
       ORDER BY executed_at ASC
-    `) as PredictionRunRow[];
-    return rows;
+    `) as unknown[];
+    return rows.map(mapPostgresPredictionRunRow);
   }
 
   async listScorelinesForRun(
@@ -156,7 +160,7 @@ export class PostgresPredictionRepository implements PredictionRepository {
       SELECT * FROM prediction_scorelines
       WHERE prediction_run_id = ${predictionRunId}
       ORDER BY rank ASC
-    `) as PredictionScorelineRow[];
-    return rows;
+    `) as unknown[];
+    return rows.map(mapPostgresScorelineRow);
   }
 }

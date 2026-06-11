@@ -237,6 +237,113 @@ describe('PostgresPredictionRepository — reads', () => {
   });
 });
 
+// =============================================================================
+// Regression: Postgres returns `numeric` columns as JS strings (preserved by
+// node-postgres / @neondatabase/serverless). Phase 7F surfaced this as a
+// Production 500 — `TypeError: ... .toFixed is not a function` — on the
+// match-detail page. Every read path must coerce numerics to JS numbers.
+// =============================================================================
+
+describe('PostgresPredictionRepository — numeric coercion (Phase 7F regression)', () => {
+  // Reproduce the wire shape: every numeric column is a string.
+  const STRING_RUN_ROW = {
+    id: 'run-string-001',
+    fixture_id: 'fixture-004',
+    run_type: 'T_ZERO',
+    model_version: 'v0.1.0',
+    scheduled_for: '2026-06-13T18:30:00.000Z',
+    executed_at: '2026-06-13T18:30:01.000Z',
+    data_snapshot_id: 'snap-string',
+    team_a_win_probability: '0.6500',
+    draw_probability: '0.2000',
+    team_b_win_probability: '0.1500',
+    team_a_expected_goals: '1.6500000',
+    team_b_expected_goals: '0.8500000',
+    confidence_score: '0.7500',
+    confidence_band: 'MEDIUM',
+    warnings: [],
+    created_at: '2026-06-13T18:30:01.000Z',
+  };
+
+  const STRING_SCORELINE_ROW = {
+    id: 'score-string-001',
+    prediction_run_id: 'run-string-001',
+    team_a_goals: 2,
+    team_b_goals: 1,
+    probability: '0.1850',
+    rank: 1,
+    created_at: '2026-06-13T18:30:01.000Z',
+  };
+
+  function expectNumericColumnsAreNumbers(row: PredictionRunRow): void {
+    for (const field of [
+      'team_a_win_probability',
+      'draw_probability',
+      'team_b_win_probability',
+      'team_a_expected_goals',
+      'team_b_expected_goals',
+      'confidence_score',
+    ] as const) {
+      expect(typeof row[field]).toBe('number');
+    }
+  }
+
+  it('listPredictionHistoryForFixture coerces string numerics to numbers', async () => {
+    const sql = makeMockSql();
+    sql.enqueue([STRING_RUN_ROW]);
+    const repo = new PostgresPredictionRepository(sql as unknown as SqlClient);
+    const out = await repo.listPredictionHistoryForFixture('fixture-004');
+    expect(out).toHaveLength(1);
+    expectNumericColumnsAreNumbers(out[0]);
+    expect(out[0].team_a_expected_goals.toFixed(2)).toBe('1.65');
+  });
+
+  it('getLatestPredictionForFixture coerces string numerics to numbers', async () => {
+    const sql = makeMockSql();
+    sql.enqueue([STRING_RUN_ROW]);
+    const repo = new PostgresPredictionRepository(sql as unknown as SqlClient);
+    const out = await repo.getLatestPredictionForFixture('fixture-004', 'T_ZERO');
+    expect(out).not.toBeNull();
+    expectNumericColumnsAreNumbers(out!);
+  });
+
+  it('getPredictionRunById coerces string numerics to numbers', async () => {
+    const sql = makeMockSql();
+    sql.enqueue([STRING_RUN_ROW]);
+    const repo = new PostgresPredictionRepository(sql as unknown as SqlClient);
+    const out = await repo.getPredictionRunById('run-string-001');
+    expect(out).not.toBeNull();
+    expectNumericColumnsAreNumbers(out!);
+  });
+
+  it('insertPredictionRun coerces the RETURNING row to numbers', async () => {
+    const sql = makeMockSql();
+    sql.enqueue([STRING_RUN_ROW]);
+    const repo = new PostgresPredictionRepository(sql as unknown as SqlClient);
+    const out = await repo.insertPredictionRun(RUN_INSERT);
+    expectNumericColumnsAreNumbers(out);
+  });
+
+  it('listScorelinesForRun coerces probability string to number', async () => {
+    const sql = makeMockSql();
+    sql.enqueue([STRING_SCORELINE_ROW]);
+    const repo = new PostgresPredictionRepository(sql as unknown as SqlClient);
+    const out = await repo.listScorelinesForRun('run-string-001');
+    expect(out).toHaveLength(1);
+    expect(typeof out[0].probability).toBe('number');
+    expect(out[0].probability).toBe(0.185);
+  });
+
+  it('insertPredictionScorelines coerces the RETURNING row to numbers', async () => {
+    const sql = makeMockSql();
+    sql.enqueue([STRING_SCORELINE_ROW]);
+    const repo = new PostgresPredictionRepository(sql as unknown as SqlClient);
+    const out = await repo.insertPredictionScorelines([SCORELINE_INSERT]);
+    expect(out).toHaveLength(1);
+    expect(typeof out[0].probability).toBe('number');
+  });
+});
+
 describe('PostgresPredictionRepository — source-level safeguards', () => {
   it('imports "server-only" and uses no NEXT_PUBLIC_ prefix', async () => {
     const fs = await import('node:fs');
