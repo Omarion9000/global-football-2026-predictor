@@ -12,7 +12,8 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "test": "vitest"
+    "test": "vitest",
+    "verify": "pnpm typecheck && pnpm lint && CI=true pnpm test && pnpm build"
   },
   "dependencies": {
     "next": "^15.5.0",

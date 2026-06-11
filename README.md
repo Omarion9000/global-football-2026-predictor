@@ -206,6 +206,20 @@ The 234-test suite takes about 1.5 seconds. Highlights:
 
 ---
 
+## Deployment
+
+A Vercel preview deployment is the recommended target while the project ships in demo/mock mode. The full step-by-step walkthrough — environment variables, cron protection, post-deploy smoke checks, accessibility / responsive checks, IP preflight, screenshot capture, and rollback — lives in [`docs/13_DEPLOYMENT_CHECKLIST.md`](docs/13_DEPLOYMENT_CHECKLIST.md).
+
+One-shot verification before any deploy:
+
+```bash
+pnpm verify   # = typecheck + lint + CI test + build
+```
+
+The deployed UI today runs against mock fixtures and in-memory persistence. Configure `CRON_SECRET` in the Vercel project if you want to exercise the cron route; otherwise the public pages render correctly even without any environment variables set. See [`docs/13`](docs/13_DEPLOYMENT_CHECKLIST.md) §4 for the demo-mode behaviour matrix.
+
+---
+
 ## Project status
 
 | Phase     | Status                                                                                        |
@@ -262,6 +276,7 @@ For longer-form context, see:
 | [`docs/10_INTERVIEW_TALK_TRACK.md`](docs/10_INTERVIEW_TALK_TRACK.md)                                 | Interview scripts and worked Q&A answers               |
 | [`docs/11_SCREENSHOT_AND_DEMO_GUIDE.md`](docs/11_SCREENSHOT_AND_DEMO_GUIDE.md)                       | Screenshot plan, demo scripts                          |
 | [`docs/12_ARCHITECTURE_DIAGRAM.md`](docs/12_ARCHITECTURE_DIAGRAM.md)                                 | Mermaid architecture diagram + prose                   |
+| [`docs/13_DEPLOYMENT_CHECKLIST.md`](docs/13_DEPLOYMENT_CHECKLIST.md)                                 | Vercel deploy walkthrough + IP preflight + rollback    |
 | [`CLAUDE.md`](CLAUDE.md)                                                                            | Quick-reference rules for Claude Code                  |
 
 ---
