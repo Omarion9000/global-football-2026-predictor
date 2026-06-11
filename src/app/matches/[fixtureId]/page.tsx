@@ -12,15 +12,20 @@ import {
 } from '@/components';
 import {
   getDemoFixtures,
-  getDemoMostRecentPrediction,
-  getDemoPredictionsForFixture,
-  getDemoScorelinesForRun,
   getDemoTeams,
 } from '@/lib/data/demoPredictions';
+import {
+  loadMostRecentPredictionForFixture,
+  loadPredictionHistoryForFixture,
+} from '@/lib/data/uiReadModel';
 import { MODEL_VERSION } from '@/lib/model';
 import { formatExecutedAt, formatKickoff } from '@/lib/utils/format';
 import { humanizeWarnings } from '@/lib/utils/warnings';
 import { PREDICTION_RUN_TYPES, type PredictionRunType } from '@/lib/types';
+
+// Refresh persisted predictions at most every 5 minutes, matching the cron
+// cadence. See `src/app/page.tsx` for the same rationale.
+export const revalidate = 300;
 
 const STAGE_LABEL: Record<string, string> = {
   GROUP: 'Group stage',
@@ -54,9 +59,11 @@ export default async function MatchDetailPage({
   const teamB = teams.find((t) => t.id === fixture.teamBId);
   if (!teamA || !teamB) notFound();
 
-  const recent = getDemoMostRecentPrediction(fixture.id);
-  const allRuns = getDemoPredictionsForFixture(fixture.id);
-  const scorelines = recent ? getDemoScorelinesForRun(recent.run.id) : [];
+  const [recent, allRuns] = await Promise.all([
+    loadMostRecentPredictionForFixture(fixture.id),
+    loadPredictionHistoryForFixture(fixture.id),
+  ]);
+  const scorelines = recent ? recent.scorelines : [];
 
   const timelineEntries: PredictionTimelineEntry[] = PREDICTION_RUN_TYPES.map(
     (rt) => {

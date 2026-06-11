@@ -1,5 +1,4 @@
-import { describe, expect, it } from 'vitest';
-import { createElement } from 'react';
+import { beforeAll, describe, expect, it } from 'vitest';
 import { renderToString } from 'react-dom/server';
 import HomePage from '../page';
 import MatchDetailPage from '../matches/[fixtureId]/page';
@@ -7,7 +6,13 @@ import { getDemoFixtures } from '@/lib/data/demoPredictions';
 import { PUBLIC_PRODUCT_NAME } from '@/components';
 
 describe('HomePage', () => {
-  const html = renderToString(createElement(HomePage));
+  // HomePage is an async Server Component (Phase 7F): it awaits the read model
+  // before returning a React element. Resolve once and reuse across assertions.
+  let html: string;
+  beforeAll(async () => {
+    const element = await HomePage();
+    html = renderToString(element);
+  });
 
   it('renders the public product name in the masthead and the hero', () => {
     expect(PUBLIC_PRODUCT_NAME).toBe('Global Football 2026 Predictor');

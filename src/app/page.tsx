@@ -8,12 +8,18 @@ import {
 } from '@/components';
 import {
   getDemoFixtures,
-  getDemoMostRecentPrediction,
   getDemoTeams,
 } from '@/lib/data/demoPredictions';
+import { loadMostRecentPredictionForFixture } from '@/lib/data/uiReadModel';
 import { MODEL_VERSION } from '@/lib/model';
 import { formatDayHeader } from '@/lib/utils/format';
 import type { Fixture } from '@/lib/types';
+import type { PredictionRunRow } from '@/lib/data/persistence/types';
+
+// Refresh the persisted-prediction read at most once every 5 minutes, matching
+// the */5 * * * * cron cadence. Without this, Next.js would bake the read into
+// the static render at build time and never refresh.
+export const revalidate = 300;
 
 function groupByDay(
   fixtures: readonly Fixture[],
@@ -50,12 +56,23 @@ function pickFeaturedFixture(
   );
 }
 
-export default function HomePage(): React.ReactElement {
+export default async function HomePage(): Promise<React.ReactElement> {
   const fixtures = getDemoFixtures();
   const teams = getDemoTeams();
   const teamById = new Map(teams.map((t) => [t.id, t]));
   const groups = groupByDay(fixtures);
   const featured = pickFeaturedFixture(fixtures, new Date());
+
+  // Load the most-recent persisted prediction per fixture in parallel. When
+  // POSTGRES_URL is unset, the read model silently falls back to demo data
+  // per fixture, so the page renders identically in demo mode.
+  const recentByFixtureId = new Map<string, PredictionRunRow>();
+  const recents = await Promise.all(
+    fixtures.map(async (f) => [f.id, await loadMostRecentPredictionForFixture(f.id)] as const),
+  );
+  for (const [id, recent] of recents) {
+    if (recent) recentByFixtureId.set(id, recent.run);
+  }
 
   // The demo helper generates 3 pre-match snapshots per fixture (T-3h, T-1h,
   // T_ZERO). Used in the hero stats pill.
@@ -67,7 +84,7 @@ export default function HomePage(): React.ReactElement {
     const teamA = teamById.get(featured.teamAId);
     const teamB = teamById.get(featured.teamBId);
     if (teamA && teamB) {
-      const recent = getDemoMostRecentPrediction(featured.id);
+      const recent = recentByFixtureId.get(featured.id) ?? null;
       featuredPanel = (
         <FeaturedMatchPanel
           fixture={featured}
@@ -76,10 +93,10 @@ export default function HomePage(): React.ReactElement {
           prediction={
             recent
               ? {
-                  pA: recent.run.team_a_win_probability,
-                  pDraw: recent.run.draw_probability,
-                  pB: recent.run.team_b_win_probability,
-                  confidenceBand: recent.run.confidence_band,
+                  pA: recent.team_a_win_probability,
+                  pDraw: recent.draw_probability,
+                  pB: recent.team_b_win_probability,
+                  confidenceBand: recent.confidence_band,
                 }
               : null
           }
@@ -141,7 +158,7 @@ export default function HomePage(): React.ReactElement {
                   const teamA = teamById.get(f.teamAId);
                   const teamB = teamById.get(f.teamBId);
                   if (!teamA || !teamB) return null;
-                  const recent = getDemoMostRecentPrediction(f.id);
+                  const recent = recentByFixtureId.get(f.id) ?? null;
                   return (
                     <MatchCard
                       key={f.id}
@@ -159,12 +176,12 @@ export default function HomePage(): React.ReactElement {
                       prediction={
                         recent
                           ? {
-                              pA: recent.run.team_a_win_probability,
-                              pDraw: recent.run.draw_probability,
-                              pB: recent.run.team_b_win_probability,
-                              confidenceBand: recent.run.confidence_band,
-                              modelVersion: recent.run.model_version,
-                              runType: recent.run.run_type,
+                              pA: recent.team_a_win_probability,
+                              pDraw: recent.draw_probability,
+                              pB: recent.team_b_win_probability,
+                              confidenceBand: recent.confidence_band,
+                              modelVersion: recent.model_version,
+                              runType: recent.run_type,
                             }
                           : null
                       }

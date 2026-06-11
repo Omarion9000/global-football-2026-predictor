@@ -156,6 +156,37 @@ SELECT COUNT(*) FROM prediction_scorelines
 
 The smoke script never prints connection strings or driver internals — only the structured result JSON above. The full source-level safeguards (no `console.*` calls, no `NEXT_PUBLIC_` references, `import 'server-only'` at the top) are verified by `src/lib/data/smoke/__tests__/persistPredictionSmoke.test.ts` and `postgresSeed.test.ts`.
 
+---
+
+## 4b. What the UI shows when `POSTGRES_URL` is set
+
+Phase 7F wires the public pages to read persisted predictions from the same `PredictionRepository` the cron route writes to, via a thin server-only read model at `src/lib/data/uiReadModel.ts`. Behaviour is fixture-by-fixture:
+
+| Database state for a given fixture                         | What the page renders        |
+|------------------------------------------------------------|------------------------------|
+| `POSTGRES_URL` unset / `InMemoryPredictionRepository`      | Demo helper (build-time mock) |
+| `POSTGRES_URL` set, fixture has ≥1 row in `prediction_runs` | Persisted DB rows             |
+| `POSTGRES_URL` set, fixture has no rows yet                | Demo helper                  |
+| `POSTGRES_URL` set, Neon unavailable / network error       | Demo helper (silent fallback) |
+| Schema mismatch / unexpected exception                     | Demo helper (silent fallback) |
+
+Important properties:
+
+- **The catalog stays mock.** Fixtures and team metadata still come from `mockFixtures` / `mockTeams`. Only the prediction rows (probabilities, expected goals, top scorelines) switch to Neon when present. Phase 7E's seed step exists so the FK chain works for the prediction tables — it is not yet a UI source of truth.
+- **Most-recent across run types.** The read model picks `MAX(executed_at)` across all run types, not a fixed `T_ZERO` lookup. As the cron schedules new runs (T-3h → T-1h → T_ZERO → HT → FT), the UI automatically advances to the freshest snapshot.
+- **Silent fallback contract.** Repository errors are swallowed; no `console.*` is emitted because driver errors can include connection-string fragments. The demo data path renders identical-shape rows, so the page never breaks.
+- **Revalidation.** Both pages declare `export const revalidate = 300;` so persistence reads refresh at most every 5 minutes — matching the `*/5 * * * *` cron and keeping per-request DB cost negligible on Fluid Compute.
+- **No client-side DB import is possible.** `@/lib/data/uiReadModel` is `server-only` and is on the ESLint UI boundary (`src/components/**` may not import it). A runtime backstop in `src/components/__tests__/ui-boundaries.test.ts` scans every component source file for the same forbidden imports.
+
+To verify the persisted path live, after Phase 7E has seeded fixture-004:
+
+```bash
+# from any browser, with no auth required:
+open https://global-football-2026-predictor.vercel.app/matches/fixture-004
+```
+
+The probabilities, expected goals, and top scorelines for fixture-004 are sourced from the row inserted by `pnpm smoke:persist`. Other fixtures (no DB rows yet) continue to render demo data — visually identical card style.
+
 ### Setting `CRON_SECRET` on Vercel
 
 Generate a random 32-byte hex string (do not commit it):
