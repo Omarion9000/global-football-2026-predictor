@@ -36,6 +36,26 @@
           }
         ]
       }
+    },
+    {
+      "files": ["src/components/**/*.{ts,tsx}"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              "@/lib/model",
+              "@/lib/model/*",
+              "@/lib/simulation",
+              "@/lib/simulation/*",
+              "@/lib/normalization",
+              "@/lib/normalization/*",
+              "@/lib/utils/rng",
+              "@/lib/utils/poisson"
+            ]
+          }
+        ]
+      }
     }
   ]
 }

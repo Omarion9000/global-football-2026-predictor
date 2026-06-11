@@ -1,21 +1,27 @@
 import type { Config } from 'tailwindcss';
 
+// Warm tournament palette per docs/07_DESIGN_SYSTEM.md §2.
+// Bumping any value here requires an explicit token-set bump and a matching
+// update to src/app/globals.css :root variables.
 const config: Config = {
   content: ['./src/**/*.{ts,tsx,mdx}'],
   theme: {
     extend: {
       colors: {
-        background: '#0B1020',
-        surface: '#111827',
-        'surface-muted': '#1F2937',
-        border: '#334155',
-        'text-primary': '#F8FAFC',
-        'text-secondary': '#CBD5E1',
-        accent: '#38BDF8',
-        'accent-secondary': '#A78BFA',
-        success: '#22C55E',
-        warning: '#F59E0B',
-        danger: '#EF4444',
+        background: '#F7F3EA',
+        surface: '#FFFFFF',
+        'surface-muted': '#FFF8E7',
+        'surface-strong': '#F2E6C9',
+        border: '#E7DCC8',
+        'text-primary': '#1C1917',
+        'text-secondary': '#78716C',
+        'accent-gold': '#D6A84F',
+        'accent-red': '#C2410C',
+        'accent-green': '#166534',
+        'accent-blue': '#2563EB',
+        success: '#15803D',
+        warning: '#D97706',
+        danger: '#DC2626',
       },
       fontFamily: {
         sans: [
@@ -65,9 +71,14 @@ const config: Config = {
       transitionDuration: {
         DEFAULT: '150ms',
         layout: '250ms',
+        foil: '400ms',
       },
       transitionTimingFunction: {
         DEFAULT: 'cubic-bezier(0.2, 0.8, 0.2, 1)',
+      },
+      boxShadow: {
+        card: '0 1px 2px rgba(28, 25, 23, 0.04), 0 4px 12px rgba(28, 25, 23, 0.06)',
+        'card-hover': '0 2px 6px rgba(28, 25, 23, 0.08), 0 12px 32px rgba(28, 25, 23, 0.12)',
       },
     },
   },
