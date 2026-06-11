@@ -26,10 +26,16 @@
 import { readFileSync, existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { neon } from '@neondatabase/serverless';
+import { splitMigrationStatements } from '@/lib/data/postgres/migrationParser';
 
-// Environment variables are loaded by Node's built-in --env-file flag (see
-// the package.json db:migrate:postgres script). After `vercel env pull
-// .env.local`, the file is populated automatically with POSTGRES_URL etc.
+// Load .env.local if present (created by `vercel env pull .env.local
+// --environment=preview`). `process.loadEnvFile()` is Node 20.12+/21.7+
+// native — equivalent to the `--env-file` CLI flag but invocation-agnostic
+// so tsx's argument parser cannot swallow it.
+const localEnv = resolve(process.cwd(), '.env.local');
+if (existsSync(localEnv)) {
+  process.loadEnvFile(localEnv);
+}
 
 function sanitiseUrl(url: string): string {
   try {
@@ -60,14 +66,7 @@ async function main(): Promise<void> {
   }
 
   const raw = readFileSync(migrationPath, 'utf-8');
-
-  // Strip standalone -- comment lines and split on `;\n` (statement
-  // terminators followed by a newline). The migration file is hand-written
-  // with one statement per terminator, so this is safe.
-  const statements = raw
-    .split(/;\s*\n/)
-    .map((s) => s.trim())
-    .filter((s) => s.length > 0 && !s.startsWith('--'));
+  const statements = splitMigrationStatements(raw);
 
   process.stdout.write(
     `Applying ${statements.length} statements to ${sanitiseUrl(url)} …\n`,
@@ -83,11 +82,37 @@ async function main(): Promise<void> {
       applied += 1;
       process.stdout.write(`  ✓ ${preview}…\n`);
     } catch (err) {
+      const code = (err as { code?: string }).code;
       const message = err instanceof Error ? err.message : String(err);
-      process.stderr.write(
-        `\nFailed on statement #${applied + 1}: ${preview}…\n` +
-          `Error: ${message}\n`,
-      );
+      // 42P07 = duplicate_table, 42710 = duplicate_object. Either means the
+      // migration has already been applied to this database. Give the user a
+      // clear next-step rather than a raw driver error.
+      if (code === '42P07' || code === '42710') {
+        process.stderr.write(
+          `\nFailed on statement #${applied + 1}: ${preview}…\n` +
+            `Error: ${message}\n\n` +
+            `Hint: the target database already contains objects from this migration.\n` +
+            `      The migration is single-file and not idempotent. To re-apply\n` +
+            `      from scratch, drop every table first (DESTRUCTIVE — data is lost):\n\n` +
+            `        DROP TABLE IF EXISTS\n` +
+            `          prediction_scorelines,\n` +
+            `          prediction_runs,\n` +
+            `          data_snapshots,\n` +
+            `          team_stats_snapshots,\n` +
+            `          model_runs,\n` +
+            `          match_results,\n` +
+            `          data_sources,\n` +
+            `          fixtures,\n` +
+            `          teams\n` +
+            `        CASCADE;\n\n` +
+            `      Then re-run \`pnpm db:migrate:postgres\`.\n`,
+        );
+      } else {
+        process.stderr.write(
+          `\nFailed on statement #${applied + 1}: ${preview}…\n` +
+            `Error: ${message}\n`,
+        );
+      }
       process.exit(1);
     }
   }
