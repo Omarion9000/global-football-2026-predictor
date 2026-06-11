@@ -44,17 +44,19 @@ If any of those numbers move materially, investigate before deploying.
 | `SUPABASE_URL`               | Optional (Phase 7A — alternate backend) | **Server-only.** Read by `src/lib/data/supabase/serverClient.ts`. Used only when `POSTGRES_URL` is absent. |
 | `SUPABASE_SERVICE_ROLE_KEY`  | Optional (Phase 7A — alternate backend) | **Server-only.** Bypasses Row-Level Security. NEVER prefixed with `NEXT_PUBLIC_`. NEVER imported by client components. |
 
-Today the deployed public UI runs against a server-only demo-predictions helper, not a real database. Leaving every database variable unset is safe — the app continues to operate in demo/mock mode. The repository factory at `src/lib/data/persistence/repositoryFactory.ts` chooses an implementation in this order:
+**Phase 7D status: the cron route now persists through the repository factory.** On every authorised cron invocation, `src/lib/data/persistence/repositoryFactory.ts` chooses an implementation in this order:
 
-1. `POSTGRES_URL` set → **`PostgresPredictionRepository`** (Neon / Vercel Postgres — current production path).
+1. `POSTGRES_URL` set → **`PostgresPredictionRepository`** (Neon / Vercel Postgres — current production path). Cron writes land in `prediction_runs`, `prediction_scorelines`, and `data_snapshots`.
 2. `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` both set → `SupabasePredictionRepository` (alternate backend).
-3. neither → `InMemoryPredictionRepository` (demo mode).
+3. neither → `InMemoryPredictionRepository` (demo mode — each invocation gets a fresh instance, nothing persists across requests).
 
-The cron route does not call the factory yet (deferred to Phase 7D). To activate real Neon persistence in a future phase:
+**Schema migration status:** ✅ applied to the Neon Production database on 2026-06-11 via `pnpm db:migrate:postgres` — 21 statements (9 tables + 6 user-defined indexes + 6 `COMMENT ON …`). Re-running the migration after a successful apply now fails with a clear "drop tables first" hint per `scripts/apply-postgres-migration.ts` §`42P07` handling.
 
-- Confirm `POSTGRES_URL` exists in the Vercel **Production** environment (the Neon Marketplace integration populates it automatically).
-- Apply the migration once: `vercel env pull .env.local && pnpm db:migrate:postgres` (or paste the contents of `supabase/migrations/0001_init.sql` into the Neon SQL Editor).
-- Then Phase 7D will swap the cron route's `new InMemoryPredictionRepository()` for `createPredictionRepository()`.
+**What persistence covers today.** Cron writes are durable — every prediction run inserted by the scheduler lands in the database, with the SQL `UNIQUE (fixture_id, run_type, model_version, scheduled_for)` collapsing duplicate retries to `SKIPPED` exactly as the in-memory implementation does. `data_sources` is empty (no real provider integration yet); `match_results` is empty (no live-score path); `accuracy_reviews` is empty (Phase 8 surface).
+
+**What the public UI still uses.** The home page and match-detail page continue to read from the server-only demo-predictions helper at `src/lib/data/demoPredictions.ts`, which runs the engine at module load and freezes the output. Connecting the public UI to read from the database is queued for after Phase 8.
+
+**`CRON_SECRET` remains required in production.** The cron route is now the only persistence-writing endpoint and is Bearer-auth-gated. Missing secret in production returns 401. Missing secret in development is allowed for ergonomic local testing.
 
 **Important security note for `SUPABASE_SERVICE_ROLE_KEY`:**
 

@@ -68,4 +68,67 @@ describe('GET /api/cron/predictions — auth', () => {
     const res = await GET(reqWithAuth());
     expect(res.status).toBe(200);
   });
+
+  it('falls back to in-memory repositories and returns 200 when no DB env vars are set', async () => {
+    vi.stubEnv('POSTGRES_URL', '');
+    vi.stubEnv('POSTGRES_URL_NON_POOLING', '');
+    vi.stubEnv('SUPABASE_URL', '');
+    vi.stubEnv('SUPABASE_SERVICE_ROLE_KEY', '');
+    const res = await GET(reqWithAuth(`Bearer ${SECRET}`));
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as { modelVersion: string; due: number };
+    expect(typeof body.modelVersion).toBe('string');
+    expect(typeof body.due).toBe('number');
+  });
+
+  it('never leaks a connection string or stack trace in 500 responses', async () => {
+    // The route's catch block returns an opaque error. Confirm here as a
+    // contract test — even if downstream throws unexpectedly, the body is
+    // strictly `{ error: 'internal_error' }`.
+    // (We don't trigger an actual 500 in this test — the assertion documents
+    // the contract via inspection of the route source.)
+    const fs = await import('node:fs');
+    const path = await import('node:path');
+    const url = await import('node:url');
+    const here = path.dirname(url.fileURLToPath(import.meta.url));
+    const src = fs.readFileSync(path.resolve(here, '../route.ts'), 'utf-8');
+    // The catch block must return an opaque body — no err.message, no stack.
+    expect(src).toMatch(/error:\s*'internal_error'/);
+    expect(src).not.toMatch(/err\.message/);
+    expect(src).not.toMatch(/err\.stack/);
+    expect(src).not.toMatch(/console\.\w+\(/);
+  });
+});
+
+describe('GET /api/cron/predictions — repository wiring (Phase 7D)', () => {
+  it('constructs repositories through createPredictionRepository / createSnapshotRepository, not directly via InMemory*', async () => {
+    // Source-level scan. Direct construction of InMemory* in the cron path
+    // would defeat the factory's environment-based selection (Postgres in
+    // production, in-memory in demo) — verified here to catch any regression
+    // that ESLint can't see.
+    const fs = await import('node:fs');
+    const path = await import('node:path');
+    const url = await import('node:url');
+    const here = path.dirname(url.fileURLToPath(import.meta.url));
+    const src = fs.readFileSync(path.resolve(here, '../route.ts'), 'utf-8');
+    expect(src).toMatch(/createPredictionRepository\(\)/);
+    expect(src).toMatch(/createSnapshotRepository\(\)/);
+    expect(src).not.toMatch(/new InMemoryPredictionRepository\(/);
+    expect(src).not.toMatch(/new InMemorySnapshotRepository\(/);
+  });
+
+  it('never imports a database client directly in the cron route', async () => {
+    const fs = await import('node:fs');
+    const path = await import('node:path');
+    const url = await import('node:url');
+    const here = path.dirname(url.fileURLToPath(import.meta.url));
+    const src = fs.readFileSync(path.resolve(here, '../route.ts'), 'utf-8');
+    // The factory module is the right boundary — it imports the driver
+    // packages behind `server-only`. The cron route only consumes typed
+    // repository interfaces.
+    expect(src).not.toMatch(/from ['"]@supabase\/supabase-js/);
+    expect(src).not.toMatch(/from ['"]@neondatabase\/serverless/);
+    expect(src).not.toMatch(/from ['"]@\/lib\/data\/supabase/);
+    expect(src).not.toMatch(/from ['"]@\/lib\/data\/postgres/);
+  });
 });

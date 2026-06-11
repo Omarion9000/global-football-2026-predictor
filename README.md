@@ -235,9 +235,9 @@ The deployed UI today runs against mock fixtures and in-memory persistence. Conf
 | 6.2       | ✅ Portfolio readiness — this README, portfolio brief, interview talk track, screenshot guide  |
 | 6.3       | ✅ Deploy readiness — `pnpm verify`, deployment checklist, Vercel preview pushed                |
 | 7A        | ✅ Supabase-backed `PredictionRepository` + `SnapshotRepository` (alternate backend; tested with mocked clients) |
-| 7C        | ✅ Neon / Vercel Postgres-backed repositories (preferred production path; tested with mocked clients; migration script via `pnpm db:migrate:postgres`); public UI still demo-mode |
-| **7D**    | 🟡 **Up next** — wire `createPredictionRepository()` into the cron route + scheduler           |
-| 7E        | 🟡 Real `FixtureSource` adapter against a licensed provider                                    |
+| 7C        | ✅ Neon / Vercel Postgres-backed repositories (preferred production path; tested with mocked clients; migration script via `pnpm db:migrate:postgres`); schema applied to Production database |
+| 7D        | ✅ Cron route wired to `createPredictionRepository()` / `createSnapshotRepository()` — production-protected and persistence-ready. With `POSTGRES_URL` set, prediction runs land in Neon. Public UI remains demo-mode. |
+| **7E**    | 🟡 **Up next** — real `FixtureSource` adapter against a licensed provider                       |
 | 8         | 🟡 Accuracy dashboard — Brier and log-loss trends, calibration plot, scoreline hit rate        |
 
 The detailed phased plan lives in [`docs/05_BUILD_ROADMAP.md`](docs/05_BUILD_ROADMAP.md).

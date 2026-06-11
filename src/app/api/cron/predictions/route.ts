@@ -1,17 +1,23 @@
 import { NextResponse } from 'next/server';
 import { MODEL_VERSION } from '@/lib/model';
 import {
-  InMemoryPredictionRepository,
-  InMemorySnapshotRepository,
   MockFixtureSource,
+  createPredictionRepository,
+  createSnapshotRepository,
 } from '@/lib/data';
 import { runScheduler } from '@/lib/scheduler';
 
-// This route is invoked by Vercel Cron on a schedule defined in vercel.json.
-// Phase 5 wires the scheduler to mock data + in-memory repositories so the
-// route can be safely deployed alongside a real cron schedule without
-// persisting anything. A future phase swaps in Supabase-backed repositories
-// that satisfy the same PredictionRepository / SnapshotRepository contracts.
+// Invoked by Vercel Cron on the schedule declared in `vercel.json`.
+//
+// Repository selection happens through `repositoryFactory.create*Repository()`
+// (Phase 7D). The priority order — Neon Postgres → Supabase → in-memory —
+// lives in `src/lib/data/persistence/repositoryFactory.ts`, so this route does
+// not branch on environment. With `POSTGRES_URL` set in production, writes
+// land in Neon; with no DB env vars set, writes land in an in-memory store
+// (each invocation gets a fresh instance — fine for demo, no persistence).
+//
+// Fixtures are still loaded from `MockFixtureSource`. A real `FixtureSource`
+// adapter against an external data provider arrives in Phase 7E.
 export const dynamic = 'force-dynamic';
 
 function isAuthorized(request: Request): boolean {
@@ -37,8 +43,8 @@ export async function GET(request: Request): Promise<Response> {
   try {
     const fixtureSource = new MockFixtureSource();
     const fixtures = await fixtureSource.listFixtures();
-    const predictionRepository = new InMemoryPredictionRepository();
-    const snapshotRepository = new InMemorySnapshotRepository();
+    const predictionRepository = createPredictionRepository();
+    const snapshotRepository = createSnapshotRepository();
 
     const result = await runScheduler(
       {
@@ -64,7 +70,9 @@ export async function GET(request: Request): Promise<Response> {
       warnings: result.warnings,
     });
   } catch {
-    // Never expose stack traces — return an opaque error.
+    // Never expose stack traces — return an opaque error. Repository errors,
+    // including database connection failures and unique-constraint violations
+    // not caught by `executePredictionRun`, all funnel here.
     return NextResponse.json({ error: 'internal_error' }, { status: 500 });
   }
 }
