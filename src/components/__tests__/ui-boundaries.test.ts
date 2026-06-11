@@ -30,6 +30,18 @@ const FORBIDDEN_IMPORT_PATTERNS = [
   /from ['"]@\/lib\/normalization/,
   /from ['"]@\/lib\/utils\/rng/,
   /from ['"]@\/lib\/utils\/poisson/,
+  // Phase 7A — Supabase MUST NOT be imported by client components. The
+  // serverClient module uses `import 'server-only'` as a build-time backstop;
+  // this runtime test catches any source file that drifts past the lint rule.
+  /from ['"]@supabase\/supabase-js/,
+  /from ['"]@\/lib\/data\/supabase/,
+  /from ['"]@\/lib\/data\/persistence\/supabase/,
+  // Phase 7C — Neon / Vercel Postgres adapter. Same rules.
+  /from ['"]@neondatabase\/serverless/,
+  /from ['"]@\/lib\/data\/postgres/,
+  /from ['"]@\/lib\/data\/persistence\/postgres/,
+  /from ['"]@\/lib\/data\/persistence\/repositoryFactory/,
+  /from ['"]server-only/,
 ];
 
 describe('UI boundary — src/components/** imports no engine math', () => {

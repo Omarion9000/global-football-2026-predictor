@@ -233,7 +233,11 @@ The deployed UI today runs against mock fixtures and in-memory persistence. Conf
 | 6         | ✅ UI shell — home schedule, match-detail page, components, placeholder waving flags            |
 | 6.1       | ✅ Visual polish — featured panel, hero stats, foil cards, humanized warnings, premium footer  |
 | 6.2       | ✅ Portfolio readiness — this README, portfolio brief, interview talk track, screenshot guide  |
-| **7**     | 🟡 **Up next** — real `FixtureSource` adapter + Supabase-backed `PredictionRepository`         |
+| 6.3       | ✅ Deploy readiness — `pnpm verify`, deployment checklist, Vercel preview pushed                |
+| 7A        | ✅ Supabase-backed `PredictionRepository` + `SnapshotRepository` (alternate backend; tested with mocked clients) |
+| 7C        | ✅ Neon / Vercel Postgres-backed repositories (preferred production path; tested with mocked clients; migration script via `pnpm db:migrate:postgres`); public UI still demo-mode |
+| **7D**    | 🟡 **Up next** — wire `createPredictionRepository()` into the cron route + scheduler           |
+| 7E        | 🟡 Real `FixtureSource` adapter against a licensed provider                                    |
 | 8         | 🟡 Accuracy dashboard — Brier and log-loss trends, calibration plot, scoreline hit rate        |
 
 The detailed phased plan lives in [`docs/05_BUILD_ROADMAP.md`](docs/05_BUILD_ROADMAP.md).

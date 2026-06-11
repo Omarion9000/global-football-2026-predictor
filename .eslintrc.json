@@ -51,7 +51,19 @@
               "@/lib/normalization",
               "@/lib/normalization/*",
               "@/lib/utils/rng",
-              "@/lib/utils/poisson"
+              "@/lib/utils/poisson",
+              "@supabase/supabase-js",
+              "@/lib/data/supabase",
+              "@/lib/data/supabase/*",
+              "@/lib/data/persistence/supabase",
+              "@/lib/data/persistence/supabase/*",
+              "@neondatabase/serverless",
+              "@/lib/data/postgres",
+              "@/lib/data/postgres/*",
+              "@/lib/data/persistence/postgres",
+              "@/lib/data/persistence/postgres/*",
+              "@/lib/data/persistence/repositoryFactory",
+              "server-only"
             ]
           }
         ]

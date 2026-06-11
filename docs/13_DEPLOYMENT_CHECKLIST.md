@@ -35,12 +35,32 @@ If any of those numbers move materially, investigate before deploying.
 
 ## 2. Required environment variables
 
-| Variable        | Required where         | Purpose                                                                                 |
-|-----------------|------------------------|-----------------------------------------------------------------------------------------|
-| `CRON_SECRET`   | Production deploys     | Bearer token Vercel Cron presents on its scheduled calls to `/api/cron/predictions`     |
-| `NODE_ENV`      | Set automatically       | Next.js sets this; do not override                                                       |
+| Variable                     | Required where                          | Purpose                                                                                 |
+|------------------------------|-----------------------------------------|-----------------------------------------------------------------------------------------|
+| `CRON_SECRET`                | Production deploys                      | Bearer token Vercel Cron presents on its scheduled calls to `/api/cron/predictions`     |
+| `NODE_ENV`                   | Set automatically                        | Next.js sets this; do not override                                                       |
+| `POSTGRES_URL`               | Optional (Phase 7C — current production path) | **Server-only.** Pooled Neon HTTP connection string created by the Vercel Marketplace Neon integration. Read by `src/lib/data/postgres/serverClient.ts`. Highest priority in the repository factory. |
+| `POSTGRES_URL_NON_POOLING`   | Optional (migration scripts)            | **Server-only.** Direct (non-pooled) connection string used by `pnpm db:migrate:postgres`. Falls back to `POSTGRES_URL` if unset. |
+| `SUPABASE_URL`               | Optional (Phase 7A — alternate backend) | **Server-only.** Read by `src/lib/data/supabase/serverClient.ts`. Used only when `POSTGRES_URL` is absent. |
+| `SUPABASE_SERVICE_ROLE_KEY`  | Optional (Phase 7A — alternate backend) | **Server-only.** Bypasses Row-Level Security. NEVER prefixed with `NEXT_PUBLIC_`. NEVER imported by client components. |
 
-That is the entire surface area today. No Supabase URL, no API keys, no analytics tokens. The demo data flow does not require any external service.
+Today the deployed public UI runs against a server-only demo-predictions helper, not a real database. Leaving every database variable unset is safe — the app continues to operate in demo/mock mode. The repository factory at `src/lib/data/persistence/repositoryFactory.ts` chooses an implementation in this order:
+
+1. `POSTGRES_URL` set → **`PostgresPredictionRepository`** (Neon / Vercel Postgres — current production path).
+2. `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` both set → `SupabasePredictionRepository` (alternate backend).
+3. neither → `InMemoryPredictionRepository` (demo mode).
+
+The cron route does not call the factory yet (deferred to Phase 7D). To activate real Neon persistence in a future phase:
+
+- Confirm `POSTGRES_URL` exists in the Vercel **Production** environment (the Neon Marketplace integration populates it automatically).
+- Apply the migration once: `vercel env pull .env.local && pnpm db:migrate:postgres` (or paste the contents of `supabase/migrations/0001_init.sql` into the Neon SQL Editor).
+- Then Phase 7D will swap the cron route's `new InMemoryPredictionRepository()` for `createPredictionRepository()`.
+
+**Important security note for `SUPABASE_SERVICE_ROLE_KEY`:**
+
+- Must be set in Vercel project settings under the **Production** (and optionally Preview) environment, never committed.
+- Must not be prefixed with `NEXT_PUBLIC_`. The Vercel build would otherwise embed it in the client bundle.
+- The `src/lib/data/supabase/serverClient.ts` module uses `import 'server-only'`, which causes a build-time error if that path is ever pulled into a client component. The ESLint UI-boundary rule and the runtime `ui-boundaries.test.ts` are additional backstops.
 
 ### What `CRON_SECRET` does
 
@@ -253,8 +273,8 @@ State these honestly in any README, demo recording, or interview walkthrough. Th
 | **Mock/demo data only.** 8 fictional teams, 4 group-stage fixtures.     | Real provider integration is gated on a documented `data_sources` row per `docs/04` §4.3. Deferred to Phase 7. |
 | **No real sports-API integration.**                                     | Adapter interface (`FixtureSource`) and registry schema exist; the live implementation does not.              |
 | **No real flag assets.**                                                | Real flags are gated on the asset registry in `docs/08` §5. Placeholder geometric colour bands ship today.    |
-| **No Supabase production read wiring.**                                 | `PredictionRepository` interface exists with an in-memory implementation. Supabase-backed implementation queued for Phase 7. |
-| **Cron route writes are in-memory.**                                    | Each cron invocation produces a JSON summary but persists nothing across requests. Becomes durable when the Supabase implementation lands. |
+| **No Supabase production read wiring.**                                 | `PredictionRepository` interface exists with both an in-memory implementation (default) and a Supabase-backed implementation (Phase 7A). The UI still reads from the demo helper; swap-in happens in Phase 7B. |
+| **Cron route writes are in-memory.**                                    | Each cron invocation produces a JSON summary but persists nothing across requests. The cron route does NOT yet call `createPredictionRepository()` — the factory exists but is unwired. Becomes durable in Phase 7B. |
 | **Live match status (`HALF_TIME`, `FULL_TIME`) never triggers.**         | All mock fixtures ship in `SCHEDULED` status; the HT/FT status-gated paths in `getDuePredictionRuns` are exercised by tests but not by the deployed cron. |
 | **No accuracy dashboard.**                                              | `accuracy_reviews` schema is in place. The `/accuracy` UI surface lands in Phase 8.                            |
 | **No auth.**                                                            | The product is a public read-only demo. Auth is gated on a real persistence layer; not in scope.              |
