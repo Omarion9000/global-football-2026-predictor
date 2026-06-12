@@ -72,6 +72,10 @@ export type RunOptions = {
   /** Override the burn-in cutoff. Defaults to EVAL_START_DATE. Matches with
    *  dateIso < this value are observed but not scored. */
   evalStartDate?: string;
+  /** Optional upper bound on the evaluation window. Matches with
+   *  dateIso >= this value are observed but not scored. Used by Phase 8B
+   *  tuning to score ONLY validation seasons. Default: unbounded. */
+  evalEndDate?: string;
 };
 
 export type HarnessReport = {
@@ -99,6 +103,7 @@ export function runBacktest(
   options: RunOptions = {},
 ): HarnessReport {
   const evalStartDate = options.evalStartDate ?? EVAL_START_DATE;
+  const evalEndDate = options.evalEndDate ?? null;
 
   // Per-predictor accumulators (overall + per-season).
   const overall: Acc[] = predictors.map(() => emptyAcc());
@@ -112,8 +117,9 @@ export function runBacktest(
     // Step 2: every predictor observes the realised outcome.
     for (const p of predictors) p.observe(match);
 
-    // Step 3: skip scoring during burn-in.
+    // Step 3: skip scoring outside the [evalStartDate, evalEndDate) window.
     if (match.dateIso < evalStartDate) continue;
+    if (evalEndDate != null && match.dateIso >= evalEndDate) continue;
 
     const outcome = outcomeFromMatch(match);
     for (let i = 0; i < predictors.length; i += 1) {
@@ -148,7 +154,9 @@ export function runBacktest(
 
   let scored = 0;
   for (const match of corpus) {
-    if (match.dateIso >= evalStartDate) scored += 1;
+    if (match.dateIso < evalStartDate) continue;
+    if (evalEndDate != null && match.dateIso >= evalEndDate) continue;
+    scored += 1;
   }
 
   const reports: PredictorReport[] = predictors.map((p, i) => {
