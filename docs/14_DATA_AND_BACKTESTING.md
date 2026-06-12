@@ -129,3 +129,85 @@ Future phases consume `data/processed/matches.json` as a deterministic input:
 
 Neither phase changes the live prediction engine or schema. Both run offline,
 consume the JSON, and emit reports — no production reads, no writes.
+
+---
+
+## 6. Backtesting methodology (Phase 8C)
+
+`pnpm backtest` runs `src/lib/backtest/harness.ts` over the aggregated corpus
+and emits two artifacts:
+
+- `docs/15_BACKTEST_BASELINES.md` — committed, aggregate-only (metric tables
+  + season labels, no club names);
+- `data/processed/backtest-report.json` — gitignored, full detail.
+
+### 6.1 Rolling-origin chronology
+
+Matches are consumed in `dateIso` ASC order. For each match, **every
+predictor's `predict()` is called before any predictor's `observe()`** — this
+is the no-lookahead invariant. A predictor cannot peek at the current match's
+outcome via another predictor's state update, and the harness regression test
+guards the order explicitly.
+
+### 6.2 Burn-in window
+
+Matches with `dateIso < 2016-08-01` (the full 2015-16 Premier League season)
+are **observed but never scored**. This lets the rolling-frequency predictor
+converge on a realistic prior before any metric counts. Burn-in is exposed
+as the `EVAL_START_DATE` constant and can be overridden by the harness's
+`runOptions.evalStartDate`.
+
+### 6.3 Metrics
+
+| Metric    | Formula                                                  | Perfect | Uniform [1/3,1/3,1/3] |
+|-----------|----------------------------------------------------------|---------|-----------------------|
+| Brier     | `Σ (pᵢ − oᵢ)²` over the 1-of-3 outcome                   | 0       | 2/3 ≈ 0.6667          |
+| log-loss  | `−log p(observed)`, clamped at 1e-12                     | 0       | ln 3 ≈ 1.0986         |
+| accuracy  | share where `argmax(probs) == observed` (diagnostic only)| 1       | depends on tie-break  |
+
+Brier and log-loss are the **primary** ranking metrics. Accuracy is a
+diagnostic only — argmax discards calibration signal.
+
+### 6.4 Overround removal
+
+Closing-line decimal odds quoted by the bookmaker imply probabilities
+`1/oᵢ` whose sum exceeds 1 by the **overround** (typically 4–7% for English
+top-flight matches). The Phase 8C `marketImplied` predictor uses **proportional
+normalisation**: divide each implied probability by the overround. This is
+the standard first-order method (Shin-style favourite-longshot adjustments
+require a separate calibration step and are deferred to a future phase).
+
+### 6.5 Calibration
+
+The harness records every class-prediction as a `{p, hit}` pair (a match with
+realised 'H' contributes `{pH,true}, {pD,false}, {pA,false}`) and bins them
+into 10 equal-width buckets over [0, 1]. The right edge of the final bin is
+inclusive so a prediction of `p = 1` lands in bin 9 rather than out of range.
+
+### 6.6 Gates
+
+`pnpm backtest` enforces three gates in order before either artifact is
+written:
+
+1. **Analytic self-test.** Uniform Brier must equal `2/3 ± 1e-4` and log-loss
+   `ln 3 ± 1e-4`. A failure here indicates a metric implementation bug, not
+   a data issue.
+2. **Market dominance.** The market-implied baseline must beat both naive
+   baselines on Brier **and** log-loss. A failure indicates an
+   odds-conversion bug.
+3. **Market Brier sanity (warn-only).** Market Brier should fall in
+   `[0.55, 0.61]`; outside the band the runner annotates the report with a
+   `WARN` line but still succeeds.
+
+Gates 1 + 2 trigger a non-zero exit on failure.
+
+### 6.7 Reproduction
+
+```bash
+# 1. Make sure the corpus exists (Phase 8A — idempotent).
+pnpm history:fetch
+pnpm history:build
+
+# 2. Run the backtest. Prints gate outcomes + the overall metric table.
+pnpm backtest
+```

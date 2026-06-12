@@ -242,7 +242,8 @@ The deployed UI today runs against mock fixtures and in-memory persistence. Conf
 | 7G        | ✅ Production verification (`vercel logs`) caught a Postgres `numeric → string` driver gotcha that crashed `/matches/fixture-004` with `TypeError: ... .toFixed is not a function`. Hotfix `b575e4a` adds `postgresRowMappers.ts` that coerces every numeric column to JS numbers at the repository read boundary, with regression tests reproducing the wire shape. |
 | 7H        | ✅ Full mock-catalog seed (`pnpm db:seed:postgres` → 8 teams, 4 fixtures, 8 stats snapshots; idempotent). Timestamp coercion extended in `postgresRowMappers.ts` to handle Date-typed `timestamptz` rows. Smoke `executed_at` switches to wall-clock time; idempotency key still excludes `executed_at` so the original Phase 7E fixture-004 row is preserved. |
 | 8A        | ✅ Offline historical corpus ingestion — Premier League (`E0`) seasons 2015-16 through 2024-25 from [football-data.co.uk](https://www.football-data.co.uk/). Pure parser, deterministic aggregator, gitignored on-disk data, 30-row real-sample test fixture. See [`docs/14`](docs/14_DATA_AND_BACKTESTING.md). Public UI remains fictional. |
-| **8C**    | 🟡 **Up next** — backtest harness over `data/processed/matches.json` to tune Elo k / decay / Dixon-Coles ρ |
+| 8C        | ✅ Backtest harness with uniform / rolling-home-advantage / market-implied baselines, chronological no-lookahead, 2015-16 burn-in, 10-bin calibration, 3 self-test gates. Aggregate report at [`docs/15`](docs/15_BACKTEST_BASELINES.md); full detail gitignored. |
+| **8B**    | 🟡 **Up next** — Dixon-Coles model v0.2 (Elo k / decay / ρ tuned against the 8C harness)        |
 | 8         | 🟡 Accuracy dashboard — Brier and log-loss trends, calibration plot, scoreline hit rate        |
 
 The detailed phased plan lives in [`docs/05_BUILD_ROADMAP.md`](docs/05_BUILD_ROADMAP.md).

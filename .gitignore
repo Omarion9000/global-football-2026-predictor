@@ -38,3 +38,7 @@ yarn-error.log*
 # Only the test fixture under src/lib/data/history/__tests__/fixtures/ is committed.
 data/raw/
 data/processed/
+
+# Phase 8C — full-detail backtest report (real club names). The aggregate-only
+# summary lives at docs/15_BACKTEST_BASELINES.md and is committed.
+data/processed/backtest-report.json
