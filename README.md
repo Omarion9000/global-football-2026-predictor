@@ -239,7 +239,9 @@ The deployed UI today runs against mock fixtures and in-memory persistence. Conf
 | 7D        | ✅ Cron route wired to `createPredictionRepository()` / `createSnapshotRepository()` — production-protected and persistence-ready. With `POSTGRES_URL` set, prediction runs land in Neon. Public UI remains demo-mode. |
 | 7E        | ✅ Server-side `pnpm smoke:persist` script validates Neon persistence end-to-end without waiting for cron lifecycle anchors (see [`docs/13`](docs/13_DEPLOYMENT_CHECKLIST.md) §4a). |
 | 7F        | ✅ Public pages read persisted predictions through a thin server-only read model (`src/lib/data/uiReadModel.ts`). Silent fallback to the demo helper when `POSTGRES_URL` is absent, the fixture has no rows, or the repository throws. Catalog stays mock; no client-side DB import possible (see [`docs/13`](docs/13_DEPLOYMENT_CHECKLIST.md) §4b). |
-| **7G**    | 🟡 **Up next** — real `FixtureSource` adapter against an external football data provider        |
+| 7G        | ✅ Production verification (`vercel logs`) caught a Postgres `numeric → string` driver gotcha that crashed `/matches/fixture-004` with `TypeError: ... .toFixed is not a function`. Hotfix `b575e4a` adds `postgresRowMappers.ts` that coerces every numeric column to JS numbers at the repository read boundary, with regression tests reproducing the wire shape. |
+| 7H        | ✅ Full mock-catalog seed (`pnpm db:seed:postgres` → 8 teams, 4 fixtures, 8 stats snapshots; idempotent). Timestamp coercion extended in `postgresRowMappers.ts` to handle Date-typed `timestamptz` rows. Smoke `executed_at` switches to wall-clock time; idempotency key still excludes `executed_at` so the original Phase 7E fixture-004 row is preserved. |
+| **8A**    | 🟡 **Up next** — real `FixtureSource` adapter against an external football data provider        |
 | 8         | 🟡 Accuracy dashboard — Brier and log-loss trends, calibration plot, scoreline hit rate        |
 
 The detailed phased plan lives in [`docs/05_BUILD_ROADMAP.md`](docs/05_BUILD_ROADMAP.md).

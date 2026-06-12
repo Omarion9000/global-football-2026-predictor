@@ -91,6 +91,77 @@ describe('mapPostgresPredictionRunRow — numeric coercion', () => {
   });
 });
 
+describe('mapPostgresPredictionRunRow — timestamp coercion', () => {
+  function dateTypedRow(): Record<string, unknown> {
+    return {
+      id: '33333333-3333-3333-3333-333333333333',
+      fixture_id: 'fixture-001',
+      run_type: 'T_MINUS_3H',
+      model_version: 'v0.1.0',
+      // Driver returns Date instances on this path (pooled / direct paths).
+      scheduled_for: new Date('2026-06-11T17:00:00.000Z'),
+      executed_at: new Date('2026-06-11T17:00:05.000Z'),
+      created_at: new Date('2026-06-11T17:00:05.000Z'),
+      data_snapshot_id: 'snap-date',
+      team_a_win_probability: '0.5500',
+      draw_probability: '0.2500',
+      team_b_win_probability: '0.2000',
+      team_a_expected_goals: '1.4000',
+      team_b_expected_goals: '0.9000',
+      confidence_score: '0.6500',
+      confidence_band: 'MEDIUM',
+      warnings: [],
+    };
+  }
+
+  it('converts Date instances on every timestamptz column to ISO strings', () => {
+    const mapped = mapPostgresPredictionRunRow(dateTypedRow());
+    expect(typeof mapped.scheduled_for).toBe('string');
+    expect(typeof mapped.executed_at).toBe('string');
+    expect(typeof mapped.created_at).toBe('string');
+    expect(mapped.scheduled_for).toBe('2026-06-11T17:00:00.000Z');
+    expect(mapped.executed_at).toBe('2026-06-11T17:00:05.000Z');
+    expect(mapped.created_at).toBe('2026-06-11T17:00:05.000Z');
+  });
+
+  it('passes through ISO strings unchanged (the Neon HTTP default)', () => {
+    const mapped = mapPostgresPredictionRunRow({
+      ...dateTypedRow(),
+      scheduled_for: '2026-06-11T17:00:00.000Z',
+      executed_at: '2026-06-11T17:00:05.000Z',
+      created_at: '2026-06-11T17:00:05.000Z',
+    });
+    expect(mapped.scheduled_for).toBe('2026-06-11T17:00:00.000Z');
+    expect(mapped.executed_at).toBe('2026-06-11T17:00:05.000Z');
+    expect(mapped.created_at).toBe('2026-06-11T17:00:05.000Z');
+  });
+
+  it('produces a row whose timestamps support `.localeCompare()` (UI sort path)', () => {
+    // The UI read model picks max(executed_at) by comparing strings; this only
+    // works when the column is an ISO string. Verify the post-mapper value
+    // supports the same comparison path.
+    const mapped = mapPostgresPredictionRunRow(dateTypedRow());
+    expect(typeof mapped.executed_at.localeCompare).toBe('function');
+    expect(mapped.executed_at.localeCompare('2026-06-11T17:00:00.000Z')).toBe(1);
+  });
+});
+
+describe('mapPostgresScorelineRow — timestamp coercion', () => {
+  it('converts a Date-typed created_at to an ISO string', () => {
+    const mapped = mapPostgresScorelineRow({
+      id: '44444444-4444-4444-4444-444444444444',
+      prediction_run_id: '33333333-3333-3333-3333-333333333333',
+      team_a_goals: 2,
+      team_b_goals: 1,
+      probability: '0.18',
+      rank: 1,
+      created_at: new Date('2026-06-11T17:00:06.000Z'),
+    });
+    expect(typeof mapped.created_at).toBe('string');
+    expect(mapped.created_at).toBe('2026-06-11T17:00:06.000Z');
+  });
+});
+
 describe('mapPostgresScorelineRow — numeric coercion', () => {
   function rawScoreline(): Record<string, unknown> {
     return {

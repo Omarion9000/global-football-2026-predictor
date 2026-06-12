@@ -143,7 +143,12 @@ export async function runPersistenceSmoke(
   // Using the same value means scheduler and smoke writes collide on the
   // unique idempotency key, exactly as the cron retries do today.
   const scheduledFor = getScheduledFor(fixture.kickoffUtc, SMOKE_RUN_TYPE);
-  const executedAt = new Date(Date.parse(scheduledFor) + 1000).toISOString();
+  // Phase 7H: stamp executed_at with the real wall-clock time of the smoke
+  // run rather than a synthetic kickoff+1s value. The idempotency key is
+  // (fixture_id, run_type, model_version, scheduled_for) — it does NOT include
+  // executed_at — so a re-run still maps to SKIPPED_EXISTING, but the audit
+  // trail now reflects when the smoke actually ran.
+  const executedAt = new Date().toISOString();
   const snapshotId = `smoke-snap-${fixture.id}-${SMOKE_RUN_TYPE}-${MODEL_VERSION}`;
 
   const input: PredictionInput = {

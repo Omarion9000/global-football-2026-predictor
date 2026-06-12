@@ -15,6 +15,7 @@
     "test": "vitest",
     "verify": "pnpm typecheck && pnpm lint && CI=true pnpm test && pnpm build",
     "db:migrate:postgres": "tsx scripts/apply-postgres-migration.ts",
+    "db:seed:postgres": "tsx --conditions=react-server scripts/seed-postgres.ts",
     "smoke:persist": "tsx --conditions=react-server scripts/smoke-persist-prediction.ts"
   },
   "dependencies": {

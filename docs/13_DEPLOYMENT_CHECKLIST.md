@@ -76,9 +76,47 @@ This means the deployed preview is **safe even if `CRON_SECRET` is not configure
 
 ---
 
-## 4a. Persistence smoke test
+## 4a. Persistence smoke test + full-catalog seed
 
-The Phase 7D cron route is correct even when an authorized invocation returns `{"due": 0, "succeeded": 0, "skipped": 0, "failed": 0}` — that response simply means no lifecycle anchors were due at the current clock time. To validate the persistence path independently of the scheduler's due-window logic, run the manual smoke script:
+There are two manual persistence commands. Run the seed first when bringing a fresh Neon database online; the smoke is the per-fixture validator.
+
+```bash
+vercel env pull .env.local --environment=production
+
+# Phase 7H — idempotent full-catalog seed (8 teams, 4 fixtures, 8 stats snapshots).
+pnpm db:seed:postgres
+
+# Phase 7E — single-fixture persistence validator (fixture-004 T_ZERO).
+pnpm smoke:persist
+
+rm .env.local
+```
+
+`pnpm db:seed:postgres` expected output (against a Neon database where Phase 7E previously seeded only fixture-004's sub-graph):
+
+```json
+{
+  "backend": "postgres",
+  "seededTeams": 6,
+  "seededFixtures": 3,
+  "seededStatsSnapshots": 6
+}
+```
+
+Re-running immediately:
+
+```json
+{
+  "backend": "postgres",
+  "seededTeams": 0,
+  "seededFixtures": 0,
+  "seededStatsSnapshots": 0
+}
+```
+
+Both runs use `INSERT … ON CONFLICT (id) DO NOTHING` for `teams` and `fixtures`, and a deterministic `(team_id, captured_at='2026-06-10T00:00:00Z', source='mock-smoke')` SELECT-then-INSERT for `team_stats_snapshots`. The Phase 7E rows naturally dedupe — no UPDATEs, no deletes. The seed never prints connection strings or driver internals; on any failure it exits non-zero with a short message to stderr.
+
+The Phase 7D cron route is correct even when an authorized invocation returns `{"due": 0, "succeeded": 0, "skipped": 0, "failed": 0}` — that response simply means no lifecycle anchors were due at the current clock time. Once the seed has run, subsequent cron invocations that land inside a due window will write predictions for the seeded fixtures. To validate the persistence path independently of the scheduler's due-window logic, run the manual smoke script:
 
 ```bash
 vercel env pull .env.local --environment=production
@@ -172,7 +210,9 @@ Phase 7F wires the public pages to read persisted predictions from the same `Pre
 
 Important properties:
 
-- **The catalog stays mock.** Fixtures and team metadata still come from `mockFixtures` / `mockTeams`. Only the prediction rows (probabilities, expected goals, top scorelines) switch to Neon when present. Phase 7E's seed step exists so the FK chain works for the prediction tables — it is not yet a UI source of truth.
+- **The catalog stays mock.** Fixtures and team metadata still come from `mockFixtures` / `mockTeams`. Only the prediction rows (probabilities, expected goals, top scorelines) switch to Neon when present. The seed step (§4a) exists so the FK chain works for the prediction tables — it is not yet a UI source of truth.
+- **Cron transition after Phase 7H.** Before the full-catalog seed, a cron invocation against fixtures with no FK-bound rows reported `succeeded:0, failed:N` on every prediction attempt. After `pnpm db:seed:postgres`, the next due window flips to `succeeded:N, failed:0` because each `data_snapshots → fixtures` write now succeeds.
+- **fixture-004 T_ZERO is permanently SKIPPED.** The Phase 7E smoke row was written with a synthetic `executed_at = kickoff + 1s` (2026-06-13T18:30:01Z). The Phase 7H smoke patch stamps `executed_at = now()` instead, but the idempotency key is `(fixture_id, run_type, model_version, scheduled_for)` — `executed_at` is not part of it. So the original row stays untouched, and Jun 13's real T_ZERO cron run will collide on the unique key and map to `SKIPPED_EXISTING`. This is by design.
 - **Most-recent across run types.** The read model picks `MAX(executed_at)` across all run types, not a fixed `T_ZERO` lookup. As the cron schedules new runs (T-3h → T-1h → T_ZERO → HT → FT), the UI automatically advances to the freshest snapshot.
 - **Silent fallback contract.** Repository errors are swallowed; no `console.*` is emitted because driver errors can include connection-string fragments. The demo data path renders identical-shape rows, so the page never breaks.
 - **Revalidation.** Both pages declare `export const revalidate = 300;` so persistence reads refresh at most every 5 minutes — matching the `*/5 * * * *` cron and keeping per-request DB cost negligible on Fluid Compute.

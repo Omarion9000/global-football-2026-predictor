@@ -342,6 +342,29 @@ describe('PostgresPredictionRepository — numeric coercion (Phase 7F regression
     expect(out).toHaveLength(1);
     expect(typeof out[0].probability).toBe('number');
   });
+
+  // Phase 7H: timestamptz columns may arrive as Date instances on the pooled /
+  // direct Neon paths. The mapper must coerce them to ISO strings so the row
+  // type's `string` declaration holds and the UI's max-executed_at comparator
+  // works.
+  it('listPredictionHistoryForFixture coerces Date-typed timestamps to ISO strings', async () => {
+    const DATE_ROW = {
+      ...STRING_RUN_ROW,
+      scheduled_for: new Date('2026-06-13T18:30:00.000Z'),
+      executed_at: new Date('2026-06-13T18:30:05.000Z'),
+      created_at: new Date('2026-06-13T18:30:05.000Z'),
+    };
+    const sql = makeMockSql();
+    sql.enqueue([DATE_ROW]);
+    const repo = new PostgresPredictionRepository(sql as unknown as SqlClient);
+    const out = await repo.listPredictionHistoryForFixture('fixture-004');
+    expect(out).toHaveLength(1);
+    expect(typeof out[0].scheduled_for).toBe('string');
+    expect(typeof out[0].executed_at).toBe('string');
+    expect(typeof out[0].created_at).toBe('string');
+    expect(out[0].scheduled_for).toBe('2026-06-13T18:30:00.000Z');
+    expect(out[0].executed_at).toBe('2026-06-13T18:30:05.000Z');
+  });
 });
 
 describe('PostgresPredictionRepository — source-level safeguards', () => {
