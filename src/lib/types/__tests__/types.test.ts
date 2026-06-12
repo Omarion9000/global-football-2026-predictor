@@ -3,9 +3,11 @@ import {
   MissingInputError,
   PREDICTION_RUN_TYPES,
   type ConfidenceBand,
+  type MatchStage,
   type PredictionRunType,
   type ScorelineProbability,
 } from '@/lib/types';
+import type { FixtureStageRow } from '@/lib/data/persistence/types';
 
 describe('domain types', () => {
   it('PREDICTION_RUN_TYPES contains exactly the five canonical values', () => {
@@ -32,6 +34,36 @@ describe('domain types', () => {
   it('ConfidenceBand union has three bands', () => {
     const bands: ConfidenceBand[] = ['LOW', 'MEDIUM', 'HIGH'];
     expect(bands).toHaveLength(3);
+  });
+
+  it('MatchStage union includes LEAGUE alongside the six tournament values (Phase 8D)', () => {
+    const stages: MatchStage[] = [
+      'GROUP',
+      'R16',
+      'QF',
+      'SF',
+      'F',
+      'THIRD_PLACE',
+      'LEAGUE',
+    ];
+    expect(stages).toHaveLength(7);
+    // LEAGUE must be assignable to the type — this also documents the
+    // 0002 migration's intent at the type level.
+    const league: MatchStage = 'LEAGUE';
+    expect(league).toBe('LEAGUE');
+  });
+
+  it('FixtureStageRow row union mirrors MatchStage including LEAGUE', () => {
+    const rows: FixtureStageRow[] = [
+      'GROUP',
+      'R16',
+      'QF',
+      'SF',
+      'F',
+      'THIRD_PLACE',
+      'LEAGUE',
+    ];
+    expect(rows).toHaveLength(7);
   });
 
   it('ScorelineProbability shape compiles and accepts probabilities', () => {

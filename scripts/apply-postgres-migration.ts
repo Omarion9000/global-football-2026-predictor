@@ -2,23 +2,24 @@
 // =============================================================================
 // scripts/apply-postgres-migration.ts
 // =============================================================================
-// Applies `supabase/migrations/0001_init.sql` against the Neon Postgres
-// instance reachable through POSTGRES_URL_NON_POOLING (preferred — direct
-// connection avoids pgbouncer interfering with DDL) or POSTGRES_URL.
+// Applies a single SQL migration file under `supabase/migrations/` against the
+// Neon Postgres instance reachable through POSTGRES_URL_NON_POOLING (preferred
+// — direct connection avoids pgbouncer interfering with DDL) or POSTGRES_URL.
 //
 // Usage:
-//   vercel env pull .env.local          # populates POSTGRES_URL* in .env.local
-//   pnpm db:migrate:postgres
+//   vercel env pull .env.local                       # populates POSTGRES_URL*
+//   pnpm db:migrate:postgres                         # default: 0001_init.sql
+//   pnpm db:migrate:postgres:0002                    # named script for 0002
+//   tsx scripts/apply-postgres-migration.ts FILE     # any file in migrations/
 //
-// Or with explicit env:
-//   POSTGRES_URL=... pnpm db:migrate:postgres
+// Migration tracking: this runner does NOT maintain a schema_migrations
+// ledger. It applies exactly one file per invocation. Operators decide which
+// file to apply; idempotency is the migration's responsibility (see 0002 for
+// the DROP IF EXISTS / ADD pattern).
 //
 // Safety:
 //   - Statements run sequentially. If one fails, the script exits with a
-//     non-zero code and prints the failing statement preview. It does NOT
-//     attempt rollback — the migration is idempotent up to CREATE TABLE
-//     conflicts, so a partial apply can be resumed after dropping the
-//     already-created tables.
+//     non-zero code and prints the failing statement preview.
 //   - Connection strings are NEVER printed in error output. Only sanitised
 //     host:db is shown.
 // =============================================================================
@@ -56,9 +57,19 @@ async function main(): Promise<void> {
     process.exit(1);
   }
 
+  const migrationFile = process.argv[2] ?? '0001_init.sql';
+  // Defence in depth against accidental path traversal: only a bare filename
+  // inside supabase/migrations is accepted.
+  if (migrationFile.includes('/') || migrationFile.includes('\\') || migrationFile.includes('..')) {
+    process.stderr.write(
+      `Invalid migration filename "${migrationFile}". Pass a bare filename inside supabase/migrations.\n`,
+    );
+    process.exit(1);
+  }
   const migrationPath = resolve(
     process.cwd(),
-    'supabase/migrations/0001_init.sql',
+    'supabase/migrations',
+    migrationFile,
   );
   if (!existsSync(migrationPath)) {
     process.stderr.write(`Migration file not found: ${migrationPath}\n`);
@@ -69,7 +80,7 @@ async function main(): Promise<void> {
   const statements = splitMigrationStatements(raw);
 
   process.stdout.write(
-    `Applying ${statements.length} statements to ${sanitiseUrl(url)} …\n`,
+    `Applying ${statements.length} statements from ${migrationFile} to ${sanitiseUrl(url)} …\n`,
   );
 
   const sql = neon(url);
@@ -84,28 +95,20 @@ async function main(): Promise<void> {
     } catch (err) {
       const code = (err as { code?: string }).code;
       const message = err instanceof Error ? err.message : String(err);
-      // 42P07 = duplicate_table, 42710 = duplicate_object. Either means the
-      // migration has already been applied to this database. Give the user a
-      // clear next-step rather than a raw driver error.
+      // 42P07 = duplicate_table, 42710 = duplicate_object. For 0001 this
+      // means the migration has already been applied; that file does NOT use
+      // CREATE … IF NOT EXISTS. For later migrations (e.g. 0002) the SQL is
+      // authored idempotently with DROP IF EXISTS + ADD, so a duplicate
+      // shouldn't surface here — if it does, the file itself is the problem.
       if (code === '42P07' || code === '42710') {
         process.stderr.write(
           `\nFailed on statement #${applied + 1}: ${preview}…\n` +
             `Error: ${message}\n\n` +
-            `Hint: the target database already contains objects from this migration.\n` +
-            `      The migration is single-file and not idempotent. To re-apply\n` +
-            `      from scratch, drop every table first (DESTRUCTIVE — data is lost):\n\n` +
-            `        DROP TABLE IF EXISTS\n` +
-            `          prediction_scorelines,\n` +
-            `          prediction_runs,\n` +
-            `          data_snapshots,\n` +
-            `          team_stats_snapshots,\n` +
-            `          model_runs,\n` +
-            `          match_results,\n` +
-            `          data_sources,\n` +
-            `          fixtures,\n` +
-            `          teams\n` +
-            `        CASCADE;\n\n` +
-            `      Then re-run \`pnpm db:migrate:postgres\`.\n`,
+            `Hint: the target database already contains the object this statement\n` +
+            `      tries to create. If you are applying 0001_init.sql, the schema\n` +
+            `      is already in place — there is nothing left to do, no DROP needed.\n` +
+            `      If you are applying a later migration, that file should be authored\n` +
+            `      idempotently (DROP IF EXISTS + ADD) — fix the file rather than the DB.\n`,
         );
       } else {
         process.stderr.write(

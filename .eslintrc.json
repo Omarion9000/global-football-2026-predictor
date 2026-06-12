@@ -65,6 +65,8 @@
               "@/lib/data/persistence/repositoryFactory",
               "@/lib/data/smoke",
               "@/lib/data/smoke/*",
+              "@/lib/data/sources",
+              "@/lib/data/sources/*",
               "@/lib/data/uiReadModel",
               "server-only"
             ]

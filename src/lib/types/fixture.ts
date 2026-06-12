@@ -8,7 +8,11 @@ export type MatchStage =
   | 'QF'
   | 'SF'
   | 'F'
-  | 'THIRD_PLACE';
+  | 'THIRD_PLACE'
+  // LEAGUE — continuous-season league competition (e.g. English Premier League).
+  // Added in 0002_add_league_stage.sql; mirrors the widened CHECK on fixtures.stage.
+  // For LEAGUE rows, `groupCode` is null.
+  | 'LEAGUE';
 
 export type MatchStatus =
   | 'SCHEDULED'

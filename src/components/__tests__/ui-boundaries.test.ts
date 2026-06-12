@@ -43,6 +43,8 @@ const FORBIDDEN_IMPORT_PATTERNS = [
   /from ['"]@\/lib\/data\/persistence\/repositoryFactory/,
   // Phase 7E — the persistence smoke service is also server-only.
   /from ['"]@\/lib\/data\/smoke/,
+  // Phase 8D — the football-data.org client is server-only (carries an API key).
+  /from ['"]@\/lib\/data\/sources/,
   // Phase 7F — the UI read model is server-only (calls the repository factory).
   /from ['"]@\/lib\/data\/uiReadModel/,
   /from ['"]server-only/,

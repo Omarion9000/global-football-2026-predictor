@@ -35,7 +35,9 @@ export type FixtureStageRow =
   | 'QF'
   | 'SF'
   | 'F'
-  | 'THIRD_PLACE';
+  | 'THIRD_PLACE'
+  // LEAGUE — see 0002_add_league_stage.sql. groupCode is NULL on LEAGUE rows.
+  | 'LEAGUE';
 
 export type FixtureRow = {
   id: string;

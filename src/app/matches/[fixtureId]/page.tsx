@@ -34,6 +34,7 @@ const STAGE_LABEL: Record<string, string> = {
   SF: 'Semi-final',
   F: 'Final',
   THIRD_PLACE: 'Third-place play-off',
+  LEAGUE: 'League match',
 };
 
 const RUN_TYPE_LABEL: Record<PredictionRunType, string> = {
