@@ -33,3 +33,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 .env*
+
+# Phase 8A — football-data.co.uk corpus (raw downloads + aggregated JSON).
+# Only the test fixture under src/lib/data/history/__tests__/fixtures/ is committed.
+data/raw/
+data/processed/

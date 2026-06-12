@@ -16,7 +16,9 @@
     "verify": "pnpm typecheck && pnpm lint && CI=true pnpm test && pnpm build",
     "db:migrate:postgres": "tsx scripts/apply-postgres-migration.ts",
     "db:seed:postgres": "tsx --conditions=react-server scripts/seed-postgres.ts",
-    "smoke:persist": "tsx --conditions=react-server scripts/smoke-persist-prediction.ts"
+    "smoke:persist": "tsx --conditions=react-server scripts/smoke-persist-prediction.ts",
+    "history:fetch": "tsx scripts/fetch-history.ts",
+    "history:build": "tsx scripts/build-history.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
