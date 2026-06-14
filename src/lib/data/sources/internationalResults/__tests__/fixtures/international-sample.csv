@@ -1,0 +1,31 @@
+date,home_team,away_team,home_score,away_score,tournament,city,country,neutral
+1872-11-30,Scotland,England,0,0,Friendly,Glasgow,Scotland,FALSE
+1873-03-08,England,Scotland,4,2,Friendly,London,England,FALSE
+1874-03-07,Scotland,England,2,1,Friendly,Glasgow,Scotland,FALSE
+1875-03-06,England,Scotland,2,2,Friendly,London,England,FALSE
+1876-03-04,Scotland,England,3,0,Friendly,Glasgow,Scotland,FALSE
+1930-07-13,Belgium,United States,0,3,FIFA World Cup,Montevideo,Uruguay,TRUE
+1930-07-13,France,Mexico,4,1,FIFA World Cup,Montevideo,Uruguay,TRUE
+1930-07-14,Brazil,Yugoslavia,1,2,FIFA World Cup,Montevideo,Uruguay,TRUE
+1930-07-14,Peru,Romania,1,3,FIFA World Cup,Montevideo,Uruguay,TRUE
+1930-07-15,Argentina,France,1,0,FIFA World Cup,Montevideo,Uruguay,TRUE
+1933-06-11,Sweden,Estonia,6,2,FIFA World Cup qualification,Stockholm,Sweden,FALSE
+1933-06-29,Lithuania,Sweden,0,2,FIFA World Cup qualification,Kaunas,Lithuania,FALSE
+1933-09-24,Yugoslavia,Switzerland,2,2,FIFA World Cup qualification,Belgrade,Yugoslavia,FALSE
+1933-10-15,Poland,Czechoslovakia,1,2,FIFA World Cup qualification,Warsaw,Poland,FALSE
+1933-10-29,Switzerland,Romania,2,2,FIFA World Cup qualification,Bern,Switzerland,FALSE
+1960-07-06,Czechoslovakia,Russia,0,3,UEFA Euro,Marseille,France,TRUE
+1960-07-06,France,Yugoslavia,4,5,UEFA Euro,Paris,France,FALSE
+1960-07-09,France,Czechoslovakia,0,2,UEFA Euro,Marseille,France,FALSE
+1916-07-02,Chile,Uruguay,0,4,Copa América,Buenos Aires,Argentina,TRUE
+1916-07-06,Argentina,Chile,6,1,Copa América,Buenos Aires,Argentina,FALSE
+1916-07-08,Brazil,Chile,1,1,Copa América,Buenos Aires,Argentina,TRUE
+1916-07-10,Argentina,Brazil,1,1,Copa América,Buenos Aires,Argentina,FALSE
+1916-07-12,Brazil,Uruguay,1,2,Copa América,Buenos Aires,Argentina,TRUE
+1957-02-16,Egypt,Ethiopia,4,0,African Cup of Nations,Khartoum,Sudan,TRUE
+1959-05-22,Egypt,Ethiopia,4,0,African Cup of Nations,Cairo,United Arab Republic,TRUE
+1959-05-25,Ethiopia,Sudan,0,1,African Cup of Nations,Cairo,United Arab Republic,TRUE
+1959-05-29,Egypt,Sudan,2,1,African Cup of Nations,Cairo,United Arab Republic,TRUE
+2019-09-05,Bermuda,Panama,1,4,CONCACAF Nations League,Hamilton,Bermuda,FALSE
+2019-09-05,Grenada,Saint Kitts and Nevis,2,1,CONCACAF Nations League,St. George's,Grenada,FALSE
+2019-09-05,French Guiana,Belize,3,0,CONCACAF Nations League,Cayenne,French Guiana,FALSE

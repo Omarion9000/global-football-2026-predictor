@@ -16,13 +16,15 @@
     "verify": "pnpm typecheck && pnpm lint && CI=true pnpm test && pnpm build",
     "db:migrate:postgres": "tsx scripts/apply-postgres-migration.ts",
     "db:migrate:postgres:0002": "tsx scripts/apply-postgres-migration.ts 0002_add_league_stage.sql",
+    "db:migrate:postgres:0003": "tsx scripts/apply-postgres-migration.ts 0003_add_international_data.sql",
     "db:seed:postgres": "tsx --conditions=react-server scripts/seed-postgres.ts",
     "smoke:persist": "tsx --conditions=react-server scripts/smoke-persist-prediction.ts",
     "history:fetch": "tsx scripts/fetch-history.ts",
     "history:build": "tsx scripts/build-history.ts",
     "backtest": "tsx scripts/run-backtest.ts",
     "sync:epl": "tsx --conditions=react-server scripts/sync-epl.ts",
-    "history:backfill": "tsx --conditions=react-server scripts/backfill-results.ts"
+    "history:backfill": "tsx --conditions=react-server scripts/backfill-results.ts",
+    "intl:load": "tsx --conditions=react-server scripts/load-international.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
