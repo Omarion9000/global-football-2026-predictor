@@ -44,6 +44,10 @@ export type HistoricalMatch = {
   homeGoals: number;
   awayGoals: number;
   odds?: HistoricalOdds;
+  /** Phase 9B — neutral-venue flag for national-team matches. Ignored by EPL
+   *  parsers and predictors. When absent, treat as non-neutral (the EPL
+   *  semantics where the home team always has the advantage). */
+  neutral?: boolean;
 };
 
 export type ParseResult = {
