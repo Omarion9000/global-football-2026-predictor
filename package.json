@@ -23,6 +23,7 @@
     "history:build": "tsx scripts/build-history.ts",
     "backtest": "tsx scripts/run-backtest.ts",
     "backtest:national": "tsx scripts/run-national-backtest.ts",
+    "sim:tournament": "tsx scripts/run-tournament-sim.ts",
     "sync:epl": "tsx --conditions=react-server scripts/sync-epl.ts",
     "history:backfill": "tsx --conditions=react-server scripts/backfill-results.ts",
     "intl:load": "tsx --conditions=react-server scripts/load-international.ts"

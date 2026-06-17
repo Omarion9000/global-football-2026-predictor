@@ -1,0 +1,17 @@
+{
+  "$comment": "Phase 9C — 2026 tournament group draw. Each team name must resolve via src/lib/data/sources/internationalResults/teamMap.ts.",
+  "groups": [
+    { "group": "A", "teams": ["Mexico", "South Africa", "Korea Republic", "Czechia"] },
+    { "group": "B", "teams": ["Canada", "Qatar", "Switzerland", "Bosnia and Herzegovina"] },
+    { "group": "C", "teams": ["Brazil", "Morocco", "Haiti", "Scotland"] },
+    { "group": "D", "teams": ["United States", "Paraguay", "Australia", "Turkey"] },
+    { "group": "E", "teams": ["Germany", "Curacao", "Cote d'Ivoire", "Ecuador"] },
+    { "group": "F", "teams": ["Netherlands", "Japan", "Tunisia", "Sweden"] },
+    { "group": "G", "teams": ["Belgium", "Egypt", "Iran", "New Zealand"] },
+    { "group": "H", "teams": ["Spain", "Cape Verde", "Saudi Arabia", "Uruguay"] },
+    { "group": "I", "teams": ["France", "Senegal", "Norway", "Iraq"] },
+    { "group": "J", "teams": ["Argentina", "Algeria", "Austria", "Jordan"] },
+    { "group": "K", "teams": ["Portugal", "DR Congo", "Uzbekistan", "Colombia"] },
+    { "group": "L", "teams": ["England", "Croatia", "Ghana", "Panama"] }
+  ]
+}

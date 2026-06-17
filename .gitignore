@@ -42,3 +42,8 @@ data/processed/
 # Phase 8C — full-detail backtest report (real club names). The aggregate-only
 # summary lives at docs/15_BACKTEST_BASELINES.md and is committed.
 data/processed/backtest-report.json
+
+# Phase 9C — tournament simulator full Monte Carlo report. The configs
+# (groups.json + results.json) are committed; the per-team aggregated JSON
+# from one run is local-only.
+data/tournament/sim-report.json
