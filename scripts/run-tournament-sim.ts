@@ -16,9 +16,10 @@
 //   data/tournament/sim-report.json — full JSON (gitignored)
 //
 // Usage:
-//   pnpm sim:tournament                      # default n=10000, seed=42
-//   pnpm sim:tournament -- --n=20000 --seed=7
-//   pnpm sim:tournament -- --top=30
+//   pnpm sim:tournament                        # default model=confed, n=10000, seed=42
+//   pnpm sim:tournament --model=9b             # original Phase 9C (no confed correction)
+//   pnpm sim:tournament --model=confed --n=20000 --seed=7
+//   pnpm sim:tournament --top=30
 // =============================================================================
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
@@ -32,6 +33,11 @@ import {
   makeEngine,
   modelStrength,
 } from '@/lib/tournament/matchModel';
+import {
+  fitOnceConfed,
+  makeEngineConfed,
+  modelStrengthConfed,
+} from '@/lib/tournament/matchModelConfed';
 import { runMonteCarlo, titleTable, type PlayedResult } from '@/lib/tournament/simulate';
 import { makeRNG } from '@/lib/utils/rng';
 
@@ -47,14 +53,22 @@ type ResultsFile = {
   results: ReadonlyArray<PlayedResult>;
 };
 
-type Args = { n: number; seed: number; top: number };
+type ModelKind = '9b' | 'confed';
+type Args = { model: ModelKind; n: number; seed: number; top: number };
 
 function parseArgs(): Args {
+  let model: ModelKind = 'confed';
   let n = 10000;
   let seed = 42;
   let top = 20;
   for (const arg of process.argv.slice(2)) {
-    if (arg.startsWith('--n=')) n = Number(arg.slice('--n='.length));
+    if (arg.startsWith('--model=')) {
+      const v = arg.slice('--model='.length);
+      if (v !== '9b' && v !== 'confed') {
+        throw new Error(`sim:tournament: --model must be "9b" or "confed", got "${v}"`);
+      }
+      model = v;
+    } else if (arg.startsWith('--n=')) n = Number(arg.slice('--n='.length));
     else if (arg.startsWith('--seed=')) seed = Number(arg.slice('--seed='.length));
     else if (arg.startsWith('--top=')) top = Number(arg.slice('--top='.length));
     else throw new Error(`sim:tournament: unknown argument "${arg}"`);
@@ -62,7 +76,7 @@ function parseArgs(): Args {
   if (!Number.isInteger(n) || n < 1) throw new Error(`sim:tournament: --n must be a positive integer`);
   if (!Number.isFinite(seed)) throw new Error(`sim:tournament: --seed must be a number`);
   if (!Number.isInteger(top) || top < 1) throw new Error(`sim:tournament: --top must be a positive integer`);
-  return { n, seed, top };
+  return { model, n, seed, top };
 }
 
 function loadCorpus() {
@@ -106,7 +120,7 @@ async function main(): Promise<void> {
   const t0 = Date.now();
 
   process.stdout.write(`Phase 9C — tournament simulator\n`);
-  process.stdout.write(`  N=${args.n}, seed=${args.seed}, top=${args.top}\n\n`);
+  process.stdout.write(`  model=${args.model}, N=${args.n}, seed=${args.seed}, top=${args.top}\n\n`);
 
   // ─── 1. Load configs + corpus ──────────────────────────────────────────
   const groupsFile = loadGroups();
@@ -142,16 +156,48 @@ async function main(): Promise<void> {
   }));
 
   // ─── 2. Fit DC once ────────────────────────────────────────────────────
-  process.stdout.write(`  Loading martj42 corpus + fitting Phase 9B DC at ξ=0.0005, λ_reg=0.5 …\n`);
-  const tFit = Date.now();
   const corpus = loadCorpus();
-  const model = fitOnce(corpus, allTeamSlugs);
-  const engine = makeEngine(model);
-  process.stdout.write(`    corpus matches: ${corpus.length}\n`);
-  process.stdout.write(`    fit time:       ${((Date.now() - tFit) / 1000).toFixed(1)}s\n`);
-  process.stdout.write(`    teams indexed:  ${model.teamIndex.size}\n`);
-  process.stdout.write(`    fitted homeAdv: ${fmt(model.params.homeAdv, 4)}\n`);
-  process.stdout.write(`    fitted ρ:       ${fmt(model.params.rho, 4)}\n\n`);
+  const tFit = Date.now();
+  let engine;
+  let strengthOf: (team: string) => number;
+  let modelParamsForReport: Record<string, unknown>;
+  if (args.model === 'confed') {
+    process.stdout.write(`  Loading martj42 corpus + fitting Phase 9B.2 confed DC at ξ=0.0005, λ_reg=1 …\n`);
+    const modelConfed = fitOnceConfed(corpus, allTeamSlugs);
+    engine = makeEngineConfed(modelConfed);
+    strengthOf = (t) => modelStrengthConfed(modelConfed, t);
+    process.stdout.write(`    corpus matches: ${corpus.length}\n`);
+    process.stdout.write(`    fit time:       ${((Date.now() - tFit) / 1000).toFixed(1)}s\n`);
+    process.stdout.write(`    teams indexed:  ${modelConfed.teamIndex.size}\n`);
+    process.stdout.write(`    fitted homeAdv: ${fmt(modelConfed.params.homeAdv, 4)}\n`);
+    process.stdout.write(`    fitted ρ:       ${fmt(modelConfed.params.rho, 4)}\n`);
+    process.stdout.write(`    fitted conf[]:  [${modelConfed.params.conf.map((c) => fmt(c, 3)).join(', ')}]\n\n`);
+    modelParamsForReport = {
+      modelKind: 'confed',
+      mu: modelConfed.params.mu,
+      homeAdv: modelConfed.params.homeAdv,
+      rho: modelConfed.params.rho,
+      conf: modelConfed.params.conf,
+      nTeams: modelConfed.params.att.length,
+    };
+  } else {
+    process.stdout.write(`  Loading martj42 corpus + fitting Phase 9B DC at ξ=0.0005, λ_reg=0.5 …\n`);
+    const model = fitOnce(corpus, allTeamSlugs);
+    engine = makeEngine(model);
+    strengthOf = (t) => modelStrength(model, t);
+    process.stdout.write(`    corpus matches: ${corpus.length}\n`);
+    process.stdout.write(`    fit time:       ${((Date.now() - tFit) / 1000).toFixed(1)}s\n`);
+    process.stdout.write(`    teams indexed:  ${model.teamIndex.size}\n`);
+    process.stdout.write(`    fitted homeAdv: ${fmt(model.params.homeAdv, 4)}\n`);
+    process.stdout.write(`    fitted ρ:       ${fmt(model.params.rho, 4)}\n\n`);
+    modelParamsForReport = {
+      modelKind: '9b',
+      mu: model.params.mu,
+      homeAdv: model.params.homeAdv,
+      rho: model.params.rho,
+      nTeams: model.params.att.length,
+    };
+  }
 
   // ─── 3. Run Monte Carlo ────────────────────────────────────────────────
   process.stdout.write(`  Running ${args.n} simulation passes …\n`);
@@ -197,7 +243,7 @@ async function main(): Promise<void> {
         p2: arr[1] / args.n,
         p3: arr[2] / args.n,
         p4: arr[3] / args.n,
-        s: modelStrength(model, t),
+        s: strengthOf(t),
       };
     });
     rows.sort((a, b) => b.p1 - a.p1);
@@ -218,12 +264,7 @@ async function main(): Promise<void> {
         generatedAt: new Date().toISOString(),
         args,
         runtimeMs: Date.now() - t0,
-        modelParams: {
-          mu: model.params.mu,
-          homeAdv: model.params.homeAdv,
-          rho: model.params.rho,
-          nTeams: model.params.att.length,
-        },
+        modelParams: modelParamsForReport,
         titleRows,
         groupFinish: Object.fromEntries(
           [...agg.groupFinish.entries()].map(([g, inner]) => [
