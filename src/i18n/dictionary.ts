@@ -167,10 +167,10 @@ const en = {
     meta: 'R32 → R16 → QF → SF → Final',
     headline: 'Knockout bracket',
     sub:
-      'A representative 32-team knockout tree. The R32 cells show the slot each pair feeds from, plus the team most likely to occupy winner / runner-up slots. Third-place slots are not annotated with a team because the simulator does not track per-slot best-third assignments — only that 8 of the 12 third-placed teams advance.',
-    placeholderBold: 'Placeholder pairings.',
+      "FIFA's published 2026 knockout tree. The R32 cells show the slot each pair feeds from, plus the team most likely to occupy winner / runner-up slots. Third-place slots show their FIFA cluster (the set of groups whose third-placed team may fill that slot); they are not annotated with a single team because cluster assignment is resolved inside each simulation pass.",
+    placeholderBold: 'Published FIFA structure, Annex C approximated.',
     placeholderBody:
-      'Representative knockout structure, not the published 2026 pairings. See docs/20 §4.4.',
+      "R32 pairings for winners and runners-up follow FIFA's exact published 2026 table. The 8 best third-placed teams are assigned to the 8 third-place slots via bipartite matching against their real FIFA clusters; the 495-scenario Annex C table is not enumerated. See docs/20 §4.4.",
     leaderHeadline: 'Most likely qualifiers, by round',
     reachR16: 'Reach R16',
     reachQF: 'Reach QF',
@@ -186,7 +186,7 @@ const en = {
     colFinal: 'Final',
     winnerGroup: (g: string): string => `Winner Group ${g}`,
     runnerUpGroup: (g: string): string => `Runner-up Group ${g}`,
-    bestThird: (n: number): string => `Best Third #${n}`,
+    bestThird: (cluster: ReadonlyArray<string>): string => `Best Third (${[...cluster].join('/')})`,
     r32Cell: (n: string): string => `R32 · M${n}`,
     roundCell: (round: string, n: string): string => `${round} · M${n}`,
     winnerFeed: (round: string, n: string): string => `Winner ${round}·${n}`,
@@ -213,11 +213,13 @@ const en = {
       ' Curaçao and Cape Verde sit close to the ridge prior; carry larger uncertainty than the point estimate suggests.',
     cardLimitsLink: 'docs/20 · simulator + caveats',
     cardBracketKicker: 'The bracket',
-    cardBracketTitle: 'Representative, not authoritative',
-    cardBracketBodyA: "The simulator's knockout tree is a plausible 32-team structure with placeholder pairings — it is ",
+    cardBracketTitle: 'Published FIFA structure, Annex C approximated',
+    cardBracketBodyA:
+      "The simulator's knockout tree is FIFA's exact published 2026 R32 pairings for winners and runners-up. Third-place slots are filled per pass via bipartite matching against the real FIFA clusters; FIFA's 495-scenario Annex C table is ",
     cardBracketBodyB: 'not',
-    cardBracketBodyC: ' the published 2026 bracket. Replacing R32 pairings is a one-array edit; the downstream tree (R16 → Final) holds.',
-    cardBracketLink: 'docs/20 §4.4 · placeholder bracket',
+    cardBracketBodyC:
+      ' enumerated. The fallback rate (when no perfect cluster-respecting assignment exists) is recorded in the run note.',
+    cardBracketLink: 'docs/20 §4.4 · FIFA bracket + Option 1a',
   },
 };
 
@@ -348,10 +350,10 @@ const es: typeof en = {
     meta: 'R32 → R16 → QF → SF → Final',
     headline: 'Cuadro eliminatorio',
     sub:
-      'Un cuadro eliminatorio representativo de 32 selecciones. Las casillas de R32 muestran de dónde viene cada par, más la selección con mayor probabilidad de ocupar los puestos de ganador o segundo. Los puestos de mejor tercero no se asignan a una selección porque el simulador no registra la asignación de terceros por casilla — solo que 8 de los 12 terceros clasifican.',
-    placeholderBold: 'Emparejamientos provisionales.',
+      'Cuadro eliminatorio publicado por la FIFA para 2026. Las casillas de R32 muestran de dónde viene cada par, más la selección con mayor probabilidad de ocupar los puestos de ganador y segundo. Los puestos de mejor tercero muestran su clúster FIFA (el conjunto de grupos cuyo tercero puede ocupar esa casilla); no se anotan con una sola selección porque la asignación se resuelve dentro de cada simulación.',
+    placeholderBold: 'Estructura publicada, Anexo C aproximado.',
     placeholderBody:
-      'Estructura eliminatoria representativa, no los emparejamientos publicados para 2026. Véase docs/20 §4.4.',
+      'Los emparejamientos R32 para ganadores y segundos siguen la tabla publicada por la FIFA para 2026. Los 8 mejores terceros se asignan a las 8 casillas mediante emparejamiento bipartito respetando los clústeres publicados; la tabla de 495 escenarios del Anexo C no está enumerada. Véase docs/20 §4.4.',
     leaderHeadline: 'Quién clasifica a cada ronda',
     reachR16: 'Llega a octavos',
     reachQF: 'Llega a cuartos',
@@ -367,7 +369,7 @@ const es: typeof en = {
     colFinal: 'Final',
     winnerGroup: (g: string): string => `Ganador Grupo ${g}`,
     runnerUpGroup: (g: string): string => `Segundo Grupo ${g}`,
-    bestThird: (n: number): string => `Mejor tercero #${n}`,
+    bestThird: (cluster: ReadonlyArray<string>): string => `Mejor tercero (${[...cluster].join('/')})`,
     r32Cell: (n: string): string => `R32 · P${n}`,
     roundCell: (round: string, n: string): string => `${round} · P${n}`,
     winnerFeed: (round: string, n: string): string => `Ganador ${round}·${n}`,
@@ -396,13 +398,13 @@ const es: typeof en = {
       ' Curazao y Cabo Verde se mantienen cerca del prior de ridge; arrastran más incertidumbre de la que sugiere el valor puntual.',
     cardLimitsLink: 'docs/20 · simulador + advertencias',
     cardBracketKicker: 'El cuadro',
-    cardBracketTitle: 'Representativo, no definitivo',
+    cardBracketTitle: 'Estructura publicada, Anexo C aproximado',
     cardBracketBodyA:
-      'El cuadro eliminatorio del simulador es una estructura plausible de 32 selecciones con emparejamientos provisionales — ',
+      'El cuadro eliminatorio del simulador usa los emparejamientos R32 publicados por la FIFA para ganadores y segundos. Los puestos de mejor tercero se asignan en cada simulación mediante emparejamiento bipartito contra los clústeres publicados; la tabla de 495 escenarios del Anexo C ',
     cardBracketBodyB: 'no',
     cardBracketBodyC:
-      ' es el cuadro publicado para 2026. Reemplazar los emparejamientos R32 es una edición en un solo array; el resto del cuadro (R16 → Final) no cambia.',
-    cardBracketLink: 'docs/20 §4.4 · cuadro provisional',
+      ' está enumerada. La tasa de recurso a la asignación de respaldo (cuando no existe un emparejamiento perfecto) queda registrada en la nota de la ejecución.',
+    cardBracketLink: 'docs/20 §4.4 · cuadro de la FIFA + Opción 1a',
   },
 };
 

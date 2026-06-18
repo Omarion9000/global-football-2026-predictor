@@ -70,7 +70,8 @@ describe('i18n dictionary content guards', () => {
       expect(d.groups.advBadge('80%')).toMatch(/80%/);
       expect(d.bracket.winnerGroup('A')).toMatch(/A/);
       expect(d.bracket.runnerUpGroup('B')).toMatch(/B/);
-      expect(d.bracket.bestThird(3)).toMatch(/3/);
+      // Phase 9E: bestThird now takes a FIFA cluster (array of group letters).
+      expect(d.bracket.bestThird(['A', 'B', 'C', 'D', 'F'])).toMatch(/A\/B\/C\/D\/F/);
       expect(d.bracket.r32Cell('07')).toMatch(/07/);
       expect(d.bracket.winnerFeed('R32', '07')).toMatch(/R32/);
     }

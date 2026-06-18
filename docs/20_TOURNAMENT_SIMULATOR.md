@@ -80,11 +80,14 @@ is a draw. A real knockout decided on penalties (e.g. Spain 1, Germany 1
 (e.g. `1, 0`) — the simulator just needs to know who advanced.
 
 ### `bracket.ts`
-The committed constant defining the 16 R32 pairings + R16 / QF / SF / F
-tree. This is a **deterministic placeholder structure**, not FIFA's exact
-2026 published bracket. Replacing `R32_MATCHES` with the official pairings
-is a single-array edit; the downstream tree is bracket-position-relative.
-See `src/lib/tournament/bracket.ts` for the inline note.
+Phase 9E rewrote this file to mirror FIFA's published 2026 knockout
+structure: the 16 R32 matches (M73–M88) carry the exact winner / runner-up
+pairings, and the 8 third-place slots carry their real FIFA cluster of
+eligible groups. The R16 / QF / SF / Final tree (M89–M104) follows the
+published feed table; the third-place playoff M103 is intentionally not
+modelled because it does not affect title odds. See
+[§4.4](#44-knockout-bracket-fifas-2026-structure-with-option-1a-thirds)
+for the full description and the Option-1a third-place assignment.
 
 ## 3. Canonical pre-tournament prediction (confed model)
 
@@ -180,24 +183,124 @@ in-pool point estimates suggest. Their confed-corrected odds read:
 | Curaçao | 0.00 % |
 | Cape Verde | 0.01 % |
 
-### 4.4 R32 bracket is a placeholder
+### 4.4 Knockout bracket: FIFA's 2026 structure with Option 1a thirds
 
-`src/lib/tournament/bracket.ts` encodes a deterministic, plausible 32-team
-tree but does **not** claim to match FIFA's exact published 2026 pairings.
-The structure is:
-- 8 R32 matches pairing group winners A–H with best-thirds 8–1
-- 4 R32 matches pairing group winners I–L with runners-up of opposite-end
-  groups
-- 4 R32 matches pairing runners-up (A vs B, C vs D, E vs F, G vs H)
+Phase 9E replaced the earlier placeholder tree with the FIFA-published 2026
+knockout structure. The R32 pairings (M73–M88), the R16 → Final feed table
+(M89–M104), and the eight third-place cluster sets all match the FIFA
+table verbatim. The implementation is in `src/lib/tournament/bracket.ts`
+and `src/lib/tournament/thirdPlaceAssignment.ts`; the structural invariants
+are pinned cell-by-cell in `bracket.test.ts`.
 
-Replacing `R32_MATCHES` with the official FIFA pairings is a single-array
-edit. The downstream R16 / QF / SF / F tree is bracket-position-relative
-so it does not need to change. Tests in `bracket.test.ts` verify the
-structural invariants (every group label appears exactly once as winner
-and once as runner-up, exactly 8 third-place slots referenced, etc.) —
-these still hold under any official FIFA pairing.
+**R32 — winner / runner-up pairings (exact).**
 
-### 4.5 The "manual results.json update" workflow
+| Match | Home | Away |
+|---|---|---|
+| M73 | 2A | 2B |
+| M74 | 1E | 3rd ∈ {A, B, C, D, F} |
+| M75 | 1F | 2C |
+| M76 | 1C | 2F |
+| M77 | 1I | 3rd ∈ {C, D, F, G, H} |
+| M78 | 2E | 2I |
+| M79 | 1A | 3rd ∈ {C, E, F, H, I} |
+| M80 | 1L | 3rd ∈ {E, H, I, J, K} |
+| M81 | 1D | 3rd ∈ {B, E, F, I, J} |
+| M82 | 1G | 3rd ∈ {A, E, H, I, J} |
+| M83 | 2K | 2L |
+| M84 | 1H | 2J |
+| M85 | 1B | 3rd ∈ {E, F, G, I, J} |
+| M86 | 1J | 2H |
+| M87 | 1K | 3rd ∈ {D, E, I, J, L} |
+| M88 | 2D | 2G |
+
+**R16 → Final (exact, by FIFA bracket position).**
+
+```
+R16: M89=(W74,W77)  M90=(W73,W75)  M91=(W76,W78)  M92=(W79,W80)
+     M93=(W83,W84)  M94=(W81,W82)  M95=(W86,W88)  M96=(W85,W87)
+QF:  M97=(W89,W90)  M98=(W93,W94)  M99=(W91,W92)  M100=(W95,W96)
+SF:  M101=(W97,W98) M102=(W99,W100)
+F:   M104=(W101,W102)
+```
+
+The third-place playoff M103 (losers of M101 and M102) is intentionally
+**not modelled**. It does not affect title or finalist probabilities, and
+adding it would only consume RNG draws without altering aggregates.
+
+**Option 1a — third-place assignment via cluster matching.**
+
+In every simulation pass the group stage produces a unique pool of 8
+best-third teams (one from each of 8 of the 12 groups, ranked by points →
+goal difference → goals for → model strength → name). These 8 teams must
+be mapped onto the 8 R32 third-place slots subject to the FIFA cluster
+constraint: a slot whose cluster is `{E, H, I, J, K}` may only be filled by
+a third whose group letter belongs to that set.
+
+`thirdPlaceAssignment.ts` finds a perfect cluster-respecting matching via
+augmenting-path bipartite matching:
+
+```
+For each slot s in order:
+  visited ← ∅
+  tryAssign(s, visited):
+    For each unmatched eligible third t:
+      visited ← visited ∪ {t}
+      If t is free, or tryAssign(matchOf(t), visited) succeeds:
+        slot(s) ← t
+        match(t) ← s
+        return true
+```
+
+When a perfect matching exists the algorithm returns it deterministically.
+When it does not (an artefact of using cluster sets instead of FIFA's full
+Annex C scenario table), the module falls back to a deterministic best-
+effort assignment — most-constrained slot first, then alphabetical group
+letter within eligible candidates, then any remaining third when none are
+eligible — and flags `isFallback: true`. The simulator counts these
+occurrences in `agg.thirdPlaceFallbackCount`; the runner reports the
+rate and the committed UI JSON carries it in `meta.thirdPlaceFallbackRate`.
+
+**FIFA Annex C scenarios — not enumerated.** FIFA's official allocation
+procedure spells out 495 = C(12, 8) explicit scenarios mapping each
+combination of 8 advancing groups to a specific slot assignment. We do not
+encode that table; we resolve each pass via cluster matching instead. The
+fallback rate is the audit number that tells us how lossy this
+approximation is.
+
+**Observed fallback rate (post-MD1 corpus, confed model, seed 42, N =
+10 000 passes):** **0 / 10 000 = 0.00 %**. The cluster-respecting
+augmenting-path matching found a perfect assignment in every pass — the
+deterministic fallback never fired. Option 1a is, for this state of the
+tournament, **structurally exact** with respect to slot eligibility.
+
+**Effect on title probabilities (post-MD1, vs. the previous placeholder
+bracket, same seed, same N):**
+
+| rank | team | new (FIFA) | prev (placeholder) | Δ pp |
+|---:|---|---:|---:|---:|
+| 1 | Spain | 16.7 % | 18.6 % | −1.9 |
+| 2 | Argentina | 11.6 % | 8.8 % | +2.8 |
+| 3 | England | 11.5 % | 9.0 % | +2.5 |
+| 4 | Brazil | 10.9 % | 15.9 % | −5.0 |
+| 5 | Portugal | 8.1 % | 6.3 % | +1.8 |
+| 6 | France | 8.0 % | 5.9 % | +2.1 |
+| 7 | Germany | 7.0 % | 8.1 % | −1.1 |
+| 8 | Belgium | 5.1 % | 4.2 % | +0.9 |
+
+Brazil drops 5 pp because 1C vs 2F (a real Group F runner-up) is a much
+harder R32 than the placeholder match-up; Argentina and England rise
+because their FIFA paths put them on Spain's opposite half of the draw
+until the semi-final. The reshuffling is a real structural artefact of
+using the published bracket, not noise.
+
+### 4.5 Annex C scenarios are not enumerated
+
+See §4.4 — the cluster matching covers the same intent as Annex C for the
+post-MD1 corpus (0 % fallback) without enumerating the 495-case table.
+Should a future state push the fallback rate up materially, the right next
+move is to add the literal Annex C table as the assignment authority.
+
+### 4.6 The "manual results.json update" workflow
 
 The simulator is designed for the **live-update use case** without any
 data feed. As the tournament progresses, edit `data/tournament/results.json`

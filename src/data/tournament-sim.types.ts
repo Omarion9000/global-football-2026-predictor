@@ -27,6 +27,10 @@ export type SimMeta = {
   readonly runtimeMs: number;
   /** Number of pinned played matches at the time of this run. */
   readonly playedMatches: number;
+  /** Phase 9E (Option 1a): fraction of simulation passes in which the
+   *  third-place cluster constraints could not be perfectly satisfied and
+   *  the deterministic fallback was used. */
+  readonly thirdPlaceFallbackRate: number;
   /** Short human-readable note. */
   readonly note: string;
 };
@@ -65,11 +69,17 @@ export type GroupStanding = {
   readonly teams: ReadonlyArray<TeamGroupFinish>;
 };
 
-/** Reference to a slot in the bracket — what feeds a given R32 side. */
+/** Reference to a slot in the bracket — what feeds a given R32 side.
+ *  Phase 9E: third-place slots are FIFA cluster sets (e.g. ['A','B','C','D','F'])
+ *  rather than fixed best-third ranks. */
 export type BracketSlot =
   | { readonly kind: 'winner'; readonly group: string; readonly label: string }
   | { readonly kind: 'runnerUp'; readonly group: string; readonly label: string }
-  | { readonly kind: 'thirdPlace'; readonly thirdRank: number; readonly label: string };
+  | {
+      readonly kind: 'thirdPlace';
+      readonly cluster: ReadonlyArray<string>;
+      readonly label: string;
+    };
 
 /** One R32 match — two slots, identified by match index. */
 export type BracketR32Match = {

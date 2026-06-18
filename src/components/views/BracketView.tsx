@@ -29,7 +29,7 @@ function slotLabel(slot: BracketSlot, lang: Lang): string {
   const d = t(lang).bracket;
   if (slot.kind === 'winner') return d.winnerGroup(slot.group);
   if (slot.kind === 'runnerUp') return d.runnerUpGroup(slot.group);
-  return d.bestThird(slot.thirdRank);
+  return d.bestThird(slot.cluster);
 }
 
 export function BracketView({

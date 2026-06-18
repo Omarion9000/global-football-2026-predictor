@@ -36,6 +36,7 @@ import {
   SF_PAIRS,
   type SlotRef,
 } from './bracket';
+import { assignThirds, type AdvancingThird } from './thirdPlaceAssignment';
 import type { RNG } from '@/lib/utils/rng';
 
 export type GroupRoster = { group: string; teams: ReadonlyArray<string> };
@@ -70,6 +71,10 @@ export type SimAggregate = {
   wonTitle: Map<string, number>;
   /** Per-group: team → count of passes where they finished {1st, 2nd, 3rd, 4th}. */
   groupFinish: Map<string, Map<string, [number, number, number, number]>>;
+  /** Phase 9E (Option 1a): number of passes in which the third-place cluster
+   *  constraints could not be perfectly satisfied and the deterministic
+   *  fallback was used to fill the 8 R32 slots. */
+  thirdPlaceFallbackCount: number;
 };
 
 function emptyAggregate(groups: ReadonlyArray<GroupRoster>): SimAggregate {
@@ -88,6 +93,7 @@ function emptyAggregate(groups: ReadonlyArray<GroupRoster>): SimAggregate {
     reachedFinal: new Map(),
     wonTitle: new Map(),
     groupFinish,
+    thirdPlaceFallbackCount: 0,
   };
 }
 
@@ -173,18 +179,33 @@ function simulateOnePass(opts: SimOptions, played: PlayedIndex): SimPassResult {
   const standingsByGroup = new Map<string, GroupStandings>();
   for (const s of standings) standingsByGroup.set(s.group, s);
 
-  function teamForSlot(slot: SlotRef): string {
+  // Phase 9E: third-place slots are cluster-constrained. Assign the 8 best
+  // thirds to the 8 R32 third-place slots via bipartite matching against the
+  // FIFA clusters. Falls back to a deterministic assignment when no perfect
+  // matching exists; we propagate the fallback flag up so the aggregate can
+  // count occurrences.
+  const advancingThirds: AdvancingThird[] = bestThirds.map((entry) => ({
+    group: entry.group,
+    team: entry.standing.team,
+  }));
+  const thirdsAssignment = assignThirds(advancingThirds);
+
+  function teamForSlot(slot: SlotRef, r32Index: number): string {
     if (slot.kind === 'winner') return standingsByGroup.get(slot.group)!.rows[0].team;
     if (slot.kind === 'runnerUp') return standingsByGroup.get(slot.group)!.rows[1].team;
-    return bestThirds[slot.thirdRank - 1].standing.team;
+    const team = thirdsAssignment.mapping.get(r32Index);
+    if (!team) {
+      throw new Error(`simulate: third-place slot at R32 index ${r32Index} was not assigned.`);
+    }
+    return team;
   }
 
   // Phase 4: knockout walk. Use played results when present.
   const r32Winners = new Array<string>(N_R32_MATCHES);
   for (let i = 0; i < N_R32_MATCHES; i += 1) {
     const [sA, sB] = R32_MATCHES[i];
-    const a = teamForSlot(sA);
-    const b = teamForSlot(sB);
+    const a = teamForSlot(sA, i);
+    const b = teamForSlot(sB, i);
     const pinned = played.knockoutByPair.get(pairKey(a, b));
     if (pinned) {
       // Pinned knockout result — caller is responsible for ensuring the
@@ -282,6 +303,7 @@ function simulateOnePass(opts: SimOptions, played: PlayedIndex): SimPassResult {
     sfWinners,
     finalists: [finalA, finalB],
     champion,
+    thirdPlaceFallback: thirdsAssignment.isFallback,
   };
 }
 
@@ -294,6 +316,7 @@ type SimPassResult = {
   sfWinners: string[];
   finalists: [string, string];
   champion: string;
+  thirdPlaceFallback: boolean;
 };
 
 /** Run `n` independent Monte Carlo passes and aggregate per-team counts. */
@@ -324,6 +347,7 @@ export function runMonteCarlo(opts: SimOptions, n: number): SimAggregate {
     for (const t of r.qfWinners) inc(agg.reachedSF, t);
     for (const t of r.sfWinners) inc(agg.reachedFinal, t);
     inc(agg.wonTitle, r.champion);
+    if (r.thirdPlaceFallback) agg.thirdPlaceFallbackCount += 1;
     agg.passes += 1;
   }
   return agg;

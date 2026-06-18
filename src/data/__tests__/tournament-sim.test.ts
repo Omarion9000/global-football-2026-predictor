@@ -139,19 +139,33 @@ describe('tournament-sim.json — bracket', () => {
     expect(sim.bracket.finalPair[1]).toBeLessThan(2);
   });
 
-  it('every R32 slot resolves to a known group letter or third-place rank', () => {
+  it('every R32 slot resolves to a known group letter or FIFA cluster', () => {
     const groups = new Set(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L']);
     for (const m of sim.bracket.r32) {
       for (const slot of [m.home, m.away]) {
         if (slot.kind === 'thirdPlace') {
-          expect(slot.thirdRank).toBeGreaterThanOrEqual(1);
-          expect(slot.thirdRank).toBeLessThanOrEqual(8);
+          // Phase 9E: third-place slots carry a FIFA cluster set, not a rank.
+          expect(slot.cluster.length).toBe(5);
+          for (const g of slot.cluster) {
+            expect(groups.has(g)).toBe(true);
+          }
+          // No repeated groups within a cluster.
+          expect(new Set(slot.cluster).size).toBe(slot.cluster.length);
         } else {
           expect(groups.has(slot.group)).toBe(true);
         }
         expect(slot.label.length).toBeGreaterThan(0);
       }
     }
+  });
+
+  it('the bracket has exactly 8 third-place slots across the 16 R32 matches', () => {
+    let count = 0;
+    for (const m of sim.bracket.r32) {
+      if (m.home.kind === 'thirdPlace') count += 1;
+      if (m.away.kind === 'thirdPlace') count += 1;
+    }
+    expect(count).toBe(8);
   });
 
   it('every R32 idx is unique 0..15', () => {

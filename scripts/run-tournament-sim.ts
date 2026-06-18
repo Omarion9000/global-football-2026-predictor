@@ -233,7 +233,11 @@ async function main(): Promise<void> {
     { groups: groupsForSim, playedResults: playedForSim, engine, rng },
     args.n,
   );
-  process.stdout.write(`    sim time: ${((Date.now() - tSim) / 1000).toFixed(1)}s\n\n`);
+  process.stdout.write(`    sim time: ${((Date.now() - tSim) / 1000).toFixed(1)}s\n`);
+  const fallbackRate = agg.thirdPlaceFallbackCount / args.n;
+  process.stdout.write(
+    `    third-place fallback: ${agg.thirdPlaceFallbackCount} / ${args.n} passes (${(fallbackRate * 100).toFixed(2)}%)\n\n`,
+  );
 
   // ─── 4. Title-odds table ───────────────────────────────────────────────
   const titleRows = titleTable(agg, allTeamSlugs);
@@ -335,6 +339,7 @@ async function main(): Promise<void> {
       playedForSim,
       titleRows,
       agg,
+      thirdPlaceFallbackRate: fallbackRate,
     });
     mkdirSync(resolve(process.cwd(), 'src', 'data'), { recursive: true });
     writeFileSync(UI_JSON_PATH, JSON.stringify(uiJson, null, 2) + '\n');
@@ -368,13 +373,15 @@ function lookupIso2(slug: string, displayName: string): string {
 function slotLabel(ref: SlotRef): string {
   if (ref.kind === 'winner') return `Winner Group ${ref.group}`;
   if (ref.kind === 'runnerUp') return `Runner-up Group ${ref.group}`;
-  return `Best Third #${ref.thirdRank}`;
+  // Phase 9E: third-place slots carry the FIFA cluster (set of eligible
+  // groups) instead of a fixed best-third rank.
+  return `Best Third (${[...ref.cluster].join('/')})`;
 }
 
 function slotForJson(ref: SlotRef): BracketSlot {
   if (ref.kind === 'winner') return { kind: 'winner', group: ref.group, label: slotLabel(ref) };
   if (ref.kind === 'runnerUp') return { kind: 'runnerUp', group: ref.group, label: slotLabel(ref) };
-  return { kind: 'thirdPlace', thirdRank: ref.thirdRank, label: slotLabel(ref) };
+  return { kind: 'thirdPlace', cluster: [...ref.cluster], label: slotLabel(ref) };
 }
 
 function buildUiJson(input: {
@@ -391,8 +398,10 @@ function buildUiJson(input: {
     pR16: number;
   }>;
   agg: Aggregate;
+  thirdPlaceFallbackRate: number;
 }): TournamentSimData {
-  const { args, runtimeMs, groupsForSim, playedForSim, titleRows, agg } = input;
+  const { args, runtimeMs, groupsForSim, playedForSim, titleRows, agg, thirdPlaceFallbackRate } =
+    input;
 
   // Display name → group label index for fast lookup.
   const teamToGroup = new Map<string, string>();
@@ -448,6 +457,7 @@ function buildUiJson(input: {
   }));
 
   const isLive = playedForSim.length > 0;
+  const fallbackPct = (thirdPlaceFallbackRate * 100).toFixed(2);
   return {
     meta: {
       generatedAt: new Date().toISOString(),
@@ -456,10 +466,12 @@ function buildUiJson(input: {
       n: args.n,
       runtimeMs,
       playedMatches: playedForSim.length,
+      thirdPlaceFallbackRate,
       note:
         (isLive
           ? `Canonical live simulator run with ${playedForSim.length} match(es) pinned. `
           : 'Canonical pre-tournament simulator run. ') +
+        `Phase 9E bracket: third-place fallback used in ${fallbackPct}% of passes. ` +
         'Reproduce with: pnpm sim:tournament --model=confed --seed=42 --n=10000 --write-ui-json',
     },
     teams,

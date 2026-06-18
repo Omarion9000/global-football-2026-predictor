@@ -90,7 +90,7 @@ describe('HomeView (EN)', () => {
     expect(html).toMatch(/Dixon-Coles/);
     expect(html).toMatch(/Where it breaks/);
     expect(html).toMatch(/Host nations/);
-    expect(html).toMatch(/Representative, not authoritative/);
+    expect(html).toMatch(/Published FIFA structure, Annex C approximated/);
   });
 
   it('renders the EN/ES language toggle', () => {
@@ -142,8 +142,8 @@ describe('BracketView (EN)', () => {
   const html = renderBracket('en');
 
   it('renders the placeholder-pairings caveat prominently', () => {
-    expect(html).toMatch(/Placeholder pairings/);
-    expect(html).toMatch(/Representative knockout structure/);
+    expect(html).toMatch(/Published FIFA structure, Annex C approximated/);
+    expect(html).toMatch(/bipartite matching/);
   });
 
   it('renders all five rounds as columns', () => {
@@ -199,7 +199,7 @@ describe('HomeView (ES)', () => {
   it('renders the Spanish methodology card titles', () => {
     expect(html).toMatch(/fuerza por confederación/);
     expect(html).toMatch(/Dónde falla/);
-    expect(html).toMatch(/Representativo, no definitivo/);
+    expect(html).toMatch(/Estructura publicada, Anexo C aproximado/);
   });
 
   it('renders the language toggle with ES active', () => {
@@ -258,7 +258,7 @@ describe('BracketView (ES)', () => {
   });
 
   it('renders the Spanish placeholder caveat', () => {
-    expect(html).toMatch(/Emparejamientos provisionales/);
+    expect(html).toMatch(/Estructura publicada, Anexo C aproximado/);
   });
 
   it('renders the Spanish leaderboard labels', () => {
