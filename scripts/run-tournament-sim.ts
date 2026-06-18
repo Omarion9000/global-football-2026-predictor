@@ -14,20 +14,40 @@
 // Outputs:
 //   stdout — title-odds table (top N) + per-group advancement + counts
 //   data/tournament/sim-report.json — full JSON (gitignored)
+//   src/data/tournament-sim.json   — UI contract (committed, --write-ui-json
+//                                    + --model=confed only)
 //
 // Usage:
 //   pnpm sim:tournament                        # default model=confed, n=10000, seed=42
 //   pnpm sim:tournament --model=9b             # original Phase 9C (no confed correction)
 //   pnpm sim:tournament --model=confed --n=20000 --seed=7
 //   pnpm sim:tournament --top=30
+//   pnpm sim:ui                                # writes the committed UI JSON
 // =============================================================================
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { FLAG_CODE_BY_SLUG } from '@/data/flagCodes';
+import type {
+  BracketR32Match,
+  BracketSlot,
+  GroupStanding,
+  TeamGroupFinish,
+  TeamOddsRow,
+  TournamentSimData,
+} from '@/data/tournament-sim.types';
 import { parseResults } from '@/lib/data/sources/internationalResults/parseResults';
 import {
   resolveNation,
 } from '@/lib/data/sources/internationalResults/teamMap';
+import {
+  R32_MATCHES,
+  R16_PAIRS,
+  QF_PAIRS,
+  SF_PAIRS,
+  FINAL_PAIR,
+  type SlotRef,
+} from '@/lib/tournament/bracket';
 import {
   fitOnce,
   makeEngine,
@@ -45,6 +65,7 @@ const CORPUS_PATH = resolve(process.cwd(), 'data', 'raw', 'international_results
 const GROUPS_PATH = resolve(process.cwd(), 'data', 'tournament', 'groups.json');
 const RESULTS_PATH = resolve(process.cwd(), 'data', 'tournament', 'results.json');
 const REPORT_PATH = resolve(process.cwd(), 'data', 'tournament', 'sim-report.json');
+const UI_JSON_PATH = resolve(process.cwd(), 'src', 'data', 'tournament-sim.json');
 
 type GroupsFile = {
   groups: ReadonlyArray<{ group: string; teams: ReadonlyArray<string> }>;
@@ -54,13 +75,14 @@ type ResultsFile = {
 };
 
 type ModelKind = '9b' | 'confed';
-type Args = { model: ModelKind; n: number; seed: number; top: number };
+type Args = { model: ModelKind; n: number; seed: number; top: number; writeUiJson: boolean };
 
 function parseArgs(): Args {
   let model: ModelKind = 'confed';
   let n = 10000;
   let seed = 42;
   let top = 20;
+  let writeUiJson = false;
   for (const arg of process.argv.slice(2)) {
     if (arg.startsWith('--model=')) {
       const v = arg.slice('--model='.length);
@@ -71,12 +93,16 @@ function parseArgs(): Args {
     } else if (arg.startsWith('--n=')) n = Number(arg.slice('--n='.length));
     else if (arg.startsWith('--seed=')) seed = Number(arg.slice('--seed='.length));
     else if (arg.startsWith('--top=')) top = Number(arg.slice('--top='.length));
+    else if (arg === '--write-ui-json') writeUiJson = true;
     else throw new Error(`sim:tournament: unknown argument "${arg}"`);
   }
   if (!Number.isInteger(n) || n < 1) throw new Error(`sim:tournament: --n must be a positive integer`);
   if (!Number.isFinite(seed)) throw new Error(`sim:tournament: --seed must be a number`);
   if (!Number.isInteger(top) || top < 1) throw new Error(`sim:tournament: --top must be a positive integer`);
-  return { model, n, seed, top };
+  if (writeUiJson && model !== 'confed') {
+    throw new Error(`sim:tournament: --write-ui-json requires --model=confed (the canonical model)`);
+  }
+  return { model, n, seed, top, writeUiJson };
 }
 
 function loadCorpus() {
@@ -298,7 +324,154 @@ async function main(): Promise<void> {
     ) + '\n',
   );
   process.stdout.write(`Full report → ${REPORT_PATH}\n`);
+
+  // ─── 7. UI JSON (committed contract for Phase 9D UI) ───────────────────
+  if (args.writeUiJson) {
+    process.stdout.write(`\n  Building committed UI JSON …\n`);
+    const uiJson = buildUiJson({
+      args,
+      runtimeMs: Date.now() - t0,
+      groupsForSim,
+      playedForSim,
+      titleRows,
+      agg,
+    });
+    mkdirSync(resolve(process.cwd(), 'src', 'data'), { recursive: true });
+    writeFileSync(UI_JSON_PATH, JSON.stringify(uiJson, null, 2) + '\n');
+    process.stdout.write(`  UI JSON → ${UI_JSON_PATH}\n`);
+  }
+
   process.stdout.write(`\nTotal runtime: ${((Date.now() - t0) / 1000).toFixed(1)}s\n`);
+}
+
+// =============================================================================
+// UI JSON builder — shapes the simulator aggregate into the Phase 9D contract.
+// Pure transform; no model calls. The returned object satisfies
+// `TournamentSimData` from src/data/tournament-sim.types.ts.
+// =============================================================================
+
+type Aggregate = {
+  groupFinish: Map<string, Map<string, ReadonlyArray<number>>>;
+};
+
+function lookupIso2(slug: string, displayName: string): string {
+  const code = FLAG_CODE_BY_SLUG[slug];
+  if (!code) {
+    throw new Error(
+      `sim:tournament: no flag code mapped for slug "${slug}" (${displayName}). ` +
+        `Add it to src/data/flagCodes.ts.`,
+    );
+  }
+  return code;
+}
+
+function slotLabel(ref: SlotRef): string {
+  if (ref.kind === 'winner') return `Winner Group ${ref.group}`;
+  if (ref.kind === 'runnerUp') return `Runner-up Group ${ref.group}`;
+  return `Best Third #${ref.thirdRank}`;
+}
+
+function slotForJson(ref: SlotRef): BracketSlot {
+  if (ref.kind === 'winner') return { kind: 'winner', group: ref.group, label: slotLabel(ref) };
+  if (ref.kind === 'runnerUp') return { kind: 'runnerUp', group: ref.group, label: slotLabel(ref) };
+  return { kind: 'thirdPlace', thirdRank: ref.thirdRank, label: slotLabel(ref) };
+}
+
+function buildUiJson(input: {
+  args: Args;
+  runtimeMs: number;
+  groupsForSim: ReadonlyArray<{ group: string; teams: ReadonlyArray<string> }>;
+  playedForSim: ReadonlyArray<PlayedResult>;
+  titleRows: ReadonlyArray<{
+    team: string;
+    pTitle: number;
+    pFinal: number;
+    pSF: number;
+    pQF: number;
+    pR16: number;
+  }>;
+  agg: Aggregate;
+}): TournamentSimData {
+  const { args, runtimeMs, groupsForSim, playedForSim, titleRows, agg } = input;
+
+  // Display name → group label index for fast lookup.
+  const teamToGroup = new Map<string, string>();
+  for (const grp of groupsForSim) {
+    for (const t of grp.teams) teamToGroup.set(t, grp.group);
+  }
+
+  // Per-team odds rows (all 48). Resolve slug + ISO2 via teamMap + flag map.
+  const teams: TeamOddsRow[] = titleRows.map((r) => {
+    const nation = resolveNation(r.team);
+    return {
+      slug: nation.slug,
+      displayName: nation.displayName,
+      code: nation.code,
+      iso2: lookupIso2(nation.slug, nation.displayName),
+      confederation: nation.confederation,
+      group: teamToGroup.get(r.team) ?? '?',
+      pR16: r.pR16,
+      pQF: r.pQF,
+      pSF: r.pSF,
+      pFinal: r.pFinal,
+      pTitle: r.pTitle,
+    };
+  });
+
+  // Per-group standings (12 groups, 4 teams each).
+  const groups: GroupStanding[] = groupsForSim.map((grp) => {
+    const inner = agg.groupFinish.get(grp.group)!;
+    const rows: TeamGroupFinish[] = grp.teams.map((t) => {
+      const arr = inner.get(t)!;
+      const nation = resolveNation(t);
+      return {
+        slug: nation.slug,
+        displayName: nation.displayName,
+        code: nation.code,
+        iso2: lookupIso2(nation.slug, nation.displayName),
+        confederation: nation.confederation,
+        p1st: arr[0] / args.n,
+        p2nd: arr[1] / args.n,
+        p3rd: arr[2] / args.n,
+        p4th: arr[3] / args.n,
+      };
+    });
+    rows.sort((a, b) => b.p1st - a.p1st);
+    return { group: grp.group, teams: rows };
+  });
+
+  // Bracket structure with friendly labels.
+  const r32: BracketR32Match[] = R32_MATCHES.map(([home, away], idx) => ({
+    idx,
+    home: slotForJson(home),
+    away: slotForJson(away),
+  }));
+
+  return {
+    meta: {
+      generatedAt: new Date().toISOString(),
+      model: 'confed',
+      seed: args.seed,
+      n: args.n,
+      runtimeMs,
+      playedMatches: playedForSim.length,
+      note:
+        'Canonical pre-tournament simulator run. Reproduce with: ' +
+        'pnpm sim:tournament --model=confed --seed=42 --n=10000 --write-ui-json',
+    },
+    teams,
+    groups,
+    bracket: {
+      placeholderNote:
+        'Representative knockout structure, not FIFA’s exact published 2026 pairings. ' +
+        'See docs/20 §4.4.',
+      r32,
+      r16Pairs: R16_PAIRS,
+      qfPairs: QF_PAIRS,
+      sfPairs: SF_PAIRS,
+      finalPair: FINAL_PAIR,
+    },
+  };
 }
 
 main().catch((err) => {

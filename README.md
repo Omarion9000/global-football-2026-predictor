@@ -2,7 +2,9 @@
 
 **An independent football probability dashboard for the 2026 international tournament — built end-to-end in TypeScript as a portfolio project.**
 
-A deterministic statistical engine (Elo ratings, Poisson scoreline matrix, seeded Monte Carlo simulation) produces append-only prediction runs that a Next.js App Router UI renders as collectible match cards with a broadcast-style prediction timeline. Engine, scheduler, persistence, and UI are isolated by lint boundaries and verified by 230+ tests.
+A deterministic statistical engine (Dixon-Coles with confederation-strength correction, seeded Monte Carlo simulation over the 48-team bracket) produces title probabilities, group-stage advancement, and a knockout tree that a Next.js App Router UI surfaces as three broadcast-pastel views. Engine, scheduler, persistence, and UI are isolated by lint boundaries and verified by 640+ tests.
+
+> **v0.1 milestone.** The offline tournament simulator + public-facing simulator UI are feature-complete (Phases 9A–9D). The simulator reads a manually-edited results file and emits a committed JSON contract that the UI consumes; live data integration is a separate future phase.
 
 > **Independent analytical project.** Not affiliated with FIFA, any confederation, any federation, any broadcaster, any tournament organizer, or any sponsor. The product does not use official FIFA or tournament marks, logos, typefaces, mascots, slogans, or trade dress. Predictions are probabilistic estimates produced by a statistical model, not guarantees about real-world outcomes.
 
@@ -22,10 +24,11 @@ For now: clone, `pnpm install`, `pnpm dev`, open <http://localhost:3000>.
 
 The deployed UI includes:
 
-- A warm tournament fan-experience home page with a featured "next kickoff" panel and hero stats.
-- Collectible match cards with subtle foil hover interaction (`±4°` tilt, cursor-tracking radial highlight, reduced-motion fallback).
-- A match-center detail page with a three-segment probability bar, expected-goals callouts, top-scorelines table, and a broadcast-style prediction timeline.
-- A premium two-column footer carrying the independence statement and the active model version.
+- **Title probabilities (`/`)** — every team ranked by P(title), a top-6 hero strip with per-round cumulative bars, and a methodology + limitations panel.
+- **Group stage (`/groups`)** — 12 group panels with per-team P(1st / 2nd / 3rd / 4th) advancement bars and `flag-icons` SVG flags.
+- **Bracket (`/bracket`)** — round-by-round reach leaderboards plus a five-column R32 → Final tree with the placeholder-pairing caveat surfaced in-UI.
+- **Broadcast-pastel design system** — Fraunces + Albert Sans + JetBrains Mono via `next/font`; bone / cream / paper surfaces; six pastel confederation tints; reduced-motion respected.
+- **Independence-statement footer** rendered on every public page, carrying the active `MODEL_VERSION`.
 
 ---
 
@@ -249,7 +252,7 @@ The deployed UI today runs against mock fixtures and in-memory persistence. Conf
 | 9B        | ✅ National-team Dixon-Coles candidate (backtest-only). Neutral-venue gating of home advantage, weighted MLE with analytic gradients + ridge, lazy-refit predictor with strict no-lookahead. Leakage-safe tuning on 2014-17 (1,851 matches); headline on 2018-26 (4,796 matches): DC beats both uniform and the simple-Elo baseline on Brier, log-loss, accuracy. Chosen half-life ≈ 3.8 years — opposite of EPL. See [`docs/19`](docs/19_NATIONAL_MODEL.md). **`MODEL_VERSION = "v0.1.0"` unchanged.** |
 | 9C        | ✅ Tournament simulator — Monte Carlo over the 2026 group + 32-team knockout draw, deterministic seeded RNG, manually-edited `results.json` for the live-update workflow. Pure offline engine; no UI, no live API. See [`docs/20`](docs/20_TOURNAMENT_SIMULATOR.md). |
 | 9B.2      | ✅ Confederation-strength extension (backtest-only). Adds per-confederation scalar to the Phase 9B DC; identifiability via 1,026 intercontinental matches + mean-zero recenter. Tiny aggregate-holdout gain (93 % of holdout is intra-confederation) but the conf[] values recover the real hierarchy (CONMEBOL/UEFA top, OFC bottom) and correct the simulator's cross-confederation bias dramatically. See [`docs/19b`](docs/19b_NATIONAL_MODEL_CONFED.md). **`MODEL_VERSION = "v0.1.0"` unchanged.** |
-| **9D**    | 🟡 **Up next** — tournament UI (flags + bracket + manual results editor)                          |
+| **9D**    | ✅ **Tournament simulator UI (replaces demo front-end).** Three views — title probabilities, group-stage advancement, knockout bracket — rendered from a committed simulator JSON (`src/data/tournament-sim.json`). `flag-icons` SVGs for all 48 teams, broadcast-pastel design system (Fraunces + Albert Sans, bone/cream/pastel-accent palette), no engine in-request, no live data feed. Manual results-update workflow via `pnpm sim:ui`. See [`docs/21`](docs/21_UI.md). **`MODEL_VERSION = "v0.1.0"` unchanged; cron / scheduler / schema untouched.** |
 | 8         | 🟡 Accuracy dashboard — Brier and log-loss trends, calibration plot, scoreline hit rate        |
 
 The detailed phased plan lives in [`docs/05_BUILD_ROADMAP.md`](docs/05_BUILD_ROADMAP.md).
@@ -262,7 +265,7 @@ For recruiters and hiring managers — point at the file or test for each axis b
 
 - **Architectural discipline.** Engine isolation, append-only persistence, mock-first data flow, interface-driven swap-in for real providers — enforced by ESLint, a runtime boundary test, and the DB-row contract together.
 - **Statistical literacy.** Classical methods (Elo, Poisson, Dixon-Coles, Monte Carlo) implemented in pure TypeScript with frozen versioned constants, a deterministic seeded RNG, and convergence-tested simulation.
-- **Test discipline.** 234 tests covering engine, simulation, persistence, scheduler, and UI — including property-based engine checks, append-only constraint tests, and UI-vocabulary scans that prove restricted marks aren't in the deployed product.
+- **Test discipline.** 640+ tests covering engine, simulation, persistence, scheduler, the national-team backtest harness, the offline tournament simulator, and UI — including property-based engine checks, append-only constraint tests, the data-bridge JSON contract, flag-coverage, and UI-vocabulary scans that prove restricted marks aren't in the deployed product.
 - **Production-shaped, demo-fast.** The deployed UI today runs against the real engine and real DB-row shapes via a server-only helper; swapping the helper for a Supabase read is a one-file change because the persistence interface is the contract.
 - **Legal-aware engineering.** Restricted-vocabulary scans, the placeholder flag pattern, the asset registry policy, and the independence disclaimer rendered as a single-source component demonstrate that legal considerations were designed in, not bolted on.
 - **Design system thinking.** A warm tournament palette with token discipline, an original collectible-card foil treatment that explicitly avoids Panini / FUT / EA chrome, reduced-motion support across every motion path, and a WCAG AA contrast floor.

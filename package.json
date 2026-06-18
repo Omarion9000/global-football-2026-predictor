@@ -25,6 +25,7 @@
     "backtest:national": "tsx scripts/run-national-backtest.ts",
     "backtest:confed": "tsx scripts/run-confed-backtest.ts",
     "sim:tournament": "tsx scripts/run-tournament-sim.ts",
+    "sim:ui": "tsx scripts/run-tournament-sim.ts --model=confed --seed=42 --n=10000 --write-ui-json",
     "sync:epl": "tsx --conditions=react-server scripts/sync-epl.ts",
     "history:backfill": "tsx --conditions=react-server scripts/backfill-results.ts",
     "intl:load": "tsx --conditions=react-server scripts/load-international.ts"
@@ -32,6 +33,7 @@
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
     "@supabase/supabase-js": "^2.108.1",
+    "flag-icons": "^7.5.0",
     "next": "^15.5.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

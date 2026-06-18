@@ -2,15 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Warm tournament palette per docs/07_DESIGN_SYSTEM.md §2. */
+/* flag-icons (MIT) — public-domain SVG flags. Imported once globally so any
+ * `<span class="fi fi-{cc}" />` renders the correct flag. */
+@import 'flag-icons/css/flag-icons.min.css';
+
+/* Warm tournament palette per docs/07_DESIGN_SYSTEM.md §2 +
+ * broadcast-pastel additions for Phase 9D. */
 :root {
-  --color-background: #F7F3EA;
+  --color-background: #F4ECDC;
   --color-surface: #FFFFFF;
   --color-surface-muted: #FFF8E7;
   --color-surface-strong: #F2E6C9;
   --color-border: #E7DCC8;
-  --color-text-primary: #1C1917;
-  --color-text-secondary: #78716C;
+  --color-text-primary: #2A1F1A;
+  --color-text-secondary: #6B5A4B;
   --color-accent-gold: #D6A84F;
   --color-accent-red: #C2410C;
   --color-accent-green: #166534;
@@ -18,21 +23,116 @@
   --color-success: #15803D;
   --color-warning: #D97706;
   --color-danger: #DC2626;
+
+  /* Broadcast-pastel (Phase 9D). */
+  --bp-bone: #F4ECDC;
+  --bp-cream: #FBF6EA;
+  --bp-paper: #FFFDF7;
+  --bp-shell: #EFE3CB;
+  --bp-hairline: #E5D8BD;
+  --bp-ink: #2A1F1A;
+  --bp-ink-soft: #6B5A4B;
+  --bp-ink-mute: #9C8F80;
+  --bp-peach: #F4A98C;
+  --bp-sage: #9DB89A;
+  --bp-sky: #9DC0DC;
+  --bp-butter: #F2D58A;
+  --bp-lavender: #C3B1D6;
+  --bp-rose: #E5A8B0;
 }
 
 html,
 body {
   background-color: var(--color-background);
   color: var(--color-text-primary);
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
   font-variant-numeric: tabular-nums;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Phase 9D backdrop atmospherics — soft pastel washes layered over the bone
+ * background. Pinned to the viewport so the page scrolls under the wash. */
+body.bp-page {
+  background-image:
+    radial-gradient(at 12% 8%, rgba(157, 192, 220, 0.18), transparent 55%),
+    radial-gradient(at 88% 6%, rgba(242, 213, 138, 0.16), transparent 55%),
+    radial-gradient(at 72% 92%, rgba(157, 184, 154, 0.14), transparent 60%),
+    radial-gradient(at 22% 92%, rgba(244, 169, 140, 0.12), transparent 60%);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  background-size: cover;
 }
 
 /* Focus ring uses accent-blue on cream surfaces per docs/07 §7. */
 *:focus-visible {
   outline: 2px solid var(--color-accent-blue);
   outline-offset: 2px;
+}
+
+/* Flag chip — flag-icons span with a thin bone hairline and the broadcast-
+ * pastel rounded-rect crop. */
+.bp-flag {
+  display: inline-block;
+  border-radius: 4px;
+  box-shadow:
+    inset 0 0 0 1px rgba(42, 31, 26, 0.08),
+    0 1px 1px rgba(42, 31, 26, 0.06);
+  background-color: var(--bp-hairline);
+  overflow: hidden;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+/* Probability strip — a 5-segment rounded bar visualising
+ * P(R16) -> P(QF) -> P(SF) -> P(Final) -> P(Title). Each segment widens with
+ * its probability; the whole bar grows from soft peach (long shot) into deep
+ * sage (favoured). Used by the title-odds view. */
+.bp-prob-strip {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+  height: 10px;
+  border-radius: 999px;
+  overflow: hidden;
+  background-color: var(--bp-shell);
+  box-shadow: inset 0 1px 1px rgba(42, 31, 26, 0.06);
+}
+.bp-prob-strip > span {
+  display: block;
+  height: 100%;
+}
+.bp-prob-strip > span.bp-seg-r16 { background-color: var(--bp-peach); }
+.bp-prob-strip > span.bp-seg-qf { background-color: var(--bp-butter); }
+.bp-prob-strip > span.bp-seg-sf { background-color: var(--bp-sage); }
+.bp-prob-strip > span.bp-seg-final { background-color: var(--bp-sage-deep, #6F9079); }
+.bp-prob-strip > span.bp-seg-title { background-color: var(--bp-sky-deep, #6E9DBE); }
+
+/* Group advancement bar — horizontal 4-segment bar showing
+ * P(1st)/P(2nd)/P(3rd)/P(4th). */
+.bp-group-bar {
+  display: flex;
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  overflow: hidden;
+  background-color: var(--bp-shell);
+}
+.bp-group-bar > span.bp-seg-1st { background-color: var(--bp-sage); }
+.bp-group-bar > span.bp-seg-2nd { background-color: var(--bp-butter); }
+.bp-group-bar > span.bp-seg-3rd { background-color: var(--bp-peach); }
+.bp-group-bar > span.bp-seg-4th { background-color: var(--bp-hairline); }
+
+/* Page-load stagger reveal — each `.bp-reveal` child fades and rises in,
+ * with the delay set inline via --bp-stagger. Disabled under reduced motion. */
+@keyframes bp-rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.bp-reveal {
+  opacity: 0;
+  animation: bp-rise 480ms cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  animation-delay: var(--bp-stagger, 0ms);
 }
 
 /* MatchCard foil interaction — driven by JS-set CSS custom properties. The

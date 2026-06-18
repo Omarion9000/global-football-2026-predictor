@@ -60,3 +60,39 @@ describe('UI boundary — src/components/** imports no engine math', () => {
     }
   });
 });
+
+// Phase 9D extension — any file marked `'use client'` (whether under
+// src/components or src/app) must also avoid the same engine/DB modules.
+// Server-only modules shipped to the client break the build at best and
+// leak secrets at worst.
+const appDir = path.resolve(here, '..', '..', 'app');
+
+function listClientComponents(dir: string): string[] {
+  const out: string[] = [];
+  for (const entry of readdirSync(dir)) {
+    const full = path.join(dir, entry);
+    if (statSync(full).isDirectory()) {
+      if (entry === '__tests__') continue;
+      out.push(...listClientComponents(full));
+    } else if (full.endsWith('.tsx') || full.endsWith('.ts')) {
+      const src = readFileSync(full, 'utf-8');
+      // Detect a top-of-file 'use client' directive (single or double quotes).
+      if (/^\s*(['"])use client\1\s*;?/m.test(src)) out.push(full);
+    }
+  }
+  return out;
+}
+
+describe("UI boundary — 'use client' files import no engine / DB modules", () => {
+  const clientFiles = [
+    ...listClientComponents(componentsDir),
+    ...listClientComponents(appDir),
+  ];
+
+  it.each(clientFiles)('%s (client) does not import from engine / DB modules', (file) => {
+    const src = readFileSync(file, 'utf-8');
+    for (const pattern of FORBIDDEN_IMPORT_PATTERNS) {
+      expect(src).not.toMatch(pattern);
+    }
+  });
+});
