@@ -1,13 +1,11 @@
 import type { Metadata } from 'next';
+import { cookies } from 'next/headers';
 import { Albert_Sans, Fraunces, JetBrains_Mono } from 'next/font/google';
+import { LanguageProvider } from '@/components/LanguageProvider';
+import { LANG_COOKIE, resolveLang } from '@/i18n/dictionary';
 import './globals.css';
 
 // Phase 9D broadcast-pastel typography pairing.
-// Display: Fraunces (variable serif by Undercase Type) — editorial weight,
-//   slight optical-size axis at large sizes for the lower-third feel.
-// Body: Albert Sans (variable humanist sans by Tipo Pèdone) — modern,
-//   distinct, generous x-height for stats.
-// Mono: JetBrains Mono — tabular figures for the broadcast scorebox.
 const fontDisplay = Fraunces({
   subsets: ['latin'],
   variable: '--font-display',
@@ -29,9 +27,6 @@ const fontMono = JetBrains_Mono({
   display: 'swap',
 });
 
-// Public branding per docs/01_PRODUCT_BRIEF.md §9 and docs/04 §3.6.
-// Restricted tournament marks must not appear in title, description, or any
-// metadata field consumed by social previews / OpenGraph.
 export const metadata: Metadata = {
   title: 'Global Football 2026 Predictor',
   description:
@@ -44,16 +39,18 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
-}): React.ReactElement {
+}): Promise<React.ReactElement> {
+  const cookieStore = await cookies();
+  const lang = resolveLang(cookieStore.get(LANG_COOKIE)?.value);
   const fontVars = `${fontDisplay.variable} ${fontSans.variable} ${fontMono.variable}`;
   return (
-    <html lang="en" className={fontVars}>
+    <html lang={lang} className={fontVars}>
       <body className="bp-page min-h-screen bg-background font-sans text-text-primary">
-        {children}
+        <LanguageProvider initialLang={lang}>{children}</LanguageProvider>
       </body>
     </html>
   );
