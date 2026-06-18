@@ -1,5 +1,30 @@
 {
   "$comment": "Phase 9C — played match results, manually edited. Each row pins a real match outcome that the Monte Carlo treats as fixed (variance = 0 for that match). Empty array = pure pre-tournament prediction (every match drawn from the model).",
   "$schema": "Array of { stage: 'group' | 'r32' | 'r16' | 'qf' | 'sf' | 'final' | 'third_place', home: <name from groups.json>, away: <name from groups.json>, homeGoals: integer >= 0, awayGoals: integer >= 0 }",
-  "results": []
+  "results": [
+    { "stage": "group", "home": "Mexico", "away": "South Africa", "homeGoals": 2, "awayGoals": 0 },
+    { "stage": "group", "home": "Korea Republic", "away": "Czechia", "homeGoals": 2, "awayGoals": 1 },
+    { "stage": "group", "home": "Canada", "away": "Bosnia and Herzegovina", "homeGoals": 1, "awayGoals": 1 },
+    { "stage": "group", "home": "Switzerland", "away": "Qatar", "homeGoals": 1, "awayGoals": 1 },
+    { "stage": "group", "home": "Brazil", "away": "Morocco", "homeGoals": 1, "awayGoals": 1 },
+    { "stage": "group", "home": "Scotland", "away": "Haiti", "homeGoals": 1, "awayGoals": 0 },
+    { "stage": "group", "home": "United States", "away": "Paraguay", "homeGoals": 4, "awayGoals": 1 },
+    { "stage": "group", "home": "Australia", "away": "Turkey", "homeGoals": 2, "awayGoals": 0 },
+    { "stage": "group", "home": "Germany", "away": "Curacao", "homeGoals": 7, "awayGoals": 1 },
+    { "stage": "group", "home": "Cote d'Ivoire", "away": "Ecuador", "homeGoals": 1, "awayGoals": 0 },
+    { "stage": "group", "home": "Netherlands", "away": "Japan", "homeGoals": 2, "awayGoals": 2 },
+    { "stage": "group", "home": "Sweden", "away": "Tunisia", "homeGoals": 5, "awayGoals": 1 },
+    { "stage": "group", "home": "Belgium", "away": "Egypt", "homeGoals": 1, "awayGoals": 1 },
+    { "stage": "group", "home": "Iran", "away": "New Zealand", "homeGoals": 2, "awayGoals": 2 },
+    { "stage": "group", "home": "Spain", "away": "Cape Verde", "homeGoals": 0, "awayGoals": 0 },
+    { "stage": "group", "home": "Saudi Arabia", "away": "Uruguay", "homeGoals": 1, "awayGoals": 1 },
+    { "stage": "group", "home": "France", "away": "Senegal", "homeGoals": 3, "awayGoals": 1 },
+    { "stage": "group", "home": "Norway", "away": "Iraq", "homeGoals": 4, "awayGoals": 1 },
+    { "stage": "group", "home": "Argentina", "away": "Algeria", "homeGoals": 3, "awayGoals": 0 },
+    { "stage": "group", "home": "Austria", "away": "Jordan", "homeGoals": 3, "awayGoals": 1 },
+    { "stage": "group", "home": "Portugal", "away": "DR Congo", "homeGoals": 1, "awayGoals": 1 },
+    { "stage": "group", "home": "Colombia", "away": "Uzbekistan", "homeGoals": 3, "awayGoals": 1 },
+    { "stage": "group", "home": "England", "away": "Croatia", "homeGoals": 4, "awayGoals": 2 },
+    { "stage": "group", "home": "Ghana", "away": "Panama", "homeGoals": 1, "awayGoals": 0 }
+  ]
 }

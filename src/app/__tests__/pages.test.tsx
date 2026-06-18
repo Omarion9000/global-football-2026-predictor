@@ -60,7 +60,9 @@ describe('HomeView (EN)', () => {
 
   it('renders the broadcast lower-third headline and the seed/run metadata', () => {
     expect(html).toMatch(/Who lifts the trophy/);
-    expect(html).toMatch(/Pre-tournament prediction/);
+    // The kicker chip text depends on meta.playedMatches; either form is
+    // acceptable. The presence of a probability framing is what matters.
+    expect(html).toMatch(/(Pre-tournament prediction|matches played · live)/);
     expect(html).toMatch(/Monte Carlo passes/);
     expect(html).toMatch(/Seed/);
   });
@@ -176,7 +178,7 @@ describe('HomeView (ES)', () => {
 
   it('renders the Spanish headline and kicker chip', () => {
     expect(html).toMatch(/¿Quién levanta el trofeo/);
-    expect(html).toMatch(/Predicción previa al torneo/);
+    expect(html).toMatch(/(Predicción previa al torneo|partidos jugados · en vivo)/);
     expect(html).toMatch(/simulaciones Monte Carlo/);
     expect(html).toMatch(/Semilla/);
   });
@@ -206,9 +208,9 @@ describe('HomeView (ES)', () => {
   });
 
   it('does not leak English chrome strings', () => {
-    expect(html).not.toMatch(/Pre-tournament prediction/);
     expect(html).not.toMatch(/Most likely champions/);
     expect(html).not.toMatch(/How this works/);
+    expect(html).not.toMatch(/matches played · live/);
   });
 
   it('does not contain banned vocabulary in either language', () => {

@@ -447,6 +447,7 @@ function buildUiJson(input: {
     away: slotForJson(away),
   }));
 
+  const isLive = playedForSim.length > 0;
   return {
     meta: {
       generatedAt: new Date().toISOString(),
@@ -456,8 +457,10 @@ function buildUiJson(input: {
       runtimeMs,
       playedMatches: playedForSim.length,
       note:
-        'Canonical pre-tournament simulator run. Reproduce with: ' +
-        'pnpm sim:tournament --model=confed --seed=42 --n=10000 --write-ui-json',
+        (isLive
+          ? `Canonical live simulator run with ${playedForSim.length} match(es) pinned. `
+          : 'Canonical pre-tournament simulator run. ') +
+        'Reproduce with: pnpm sim:tournament --model=confed --seed=42 --n=10000 --write-ui-json',
     },
     teams,
     groups,

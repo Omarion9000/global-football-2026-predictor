@@ -58,8 +58,14 @@ export function HomeView({
           <div>
             <div className="flex flex-wrap items-center gap-3 font-mono text-[11px] uppercase tracking-broadcast-wider text-bp-ink-mute">
               <span className="inline-flex items-center gap-2 rounded-full bg-bp-cream px-3 py-1 text-bp-ink-soft shadow-bp-chip">
-                <span className="h-1.5 w-1.5 rounded-full bg-bp-peach" aria-hidden="true" />
-                {d.home.kickerChip}
+                <span
+                  className={[
+                    'h-1.5 w-1.5 rounded-full',
+                    sim.meta.playedMatches > 0 ? 'bg-bp-sage-deep' : 'bg-bp-peach',
+                  ].join(' ')}
+                  aria-hidden="true"
+                />
+                {d.home.kickerChip(sim.meta.playedMatches)}
               </span>
               <span>{d.home.runMeta(fmtGenerated(sim.meta.generatedAt, lang))}</span>
               <span>·</span>
@@ -76,14 +82,18 @@ export function HomeView({
             </h1>
             <p className="mt-5 max-w-xl text-base leading-relaxed text-bp-ink-soft">
               {(() => {
-                const s = d.home.sub(nStr);
+                const s = d.home.sub(nStr, sim.meta.playedMatches);
                 return (
                   <>
                     {s.intro}
+                    {s.playedCount ? (
+                      <span className="font-mono text-sm text-bp-ink">{s.playedCount}</span>
+                    ) : null}
+                    {s.middle}
                     <span className="font-mono text-sm text-bp-ink">{s.n}</span>
-                    {s.tail}
+                    {s.tail1}
                     <em className="font-medium not-italic text-bp-ink">{s.emphasis}</em>
-                    {d.home.subTail}
+                    {s.tail2}
                   </>
                 );
               })()}

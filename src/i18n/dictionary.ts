@@ -64,21 +64,48 @@ const en = {
   },
   home: {
     docTitle: 'Title probabilities · Global Football 2026 Predictor',
-    kickerChip: 'Pre-tournament prediction',
+    kickerChip: (played: number): string =>
+      played === 0 ? 'Pre-tournament prediction' : `${played} matches played · live`,
     runMeta: (date: string): string => `Run ${date} UTC`,
     mcPasses: (n: string): string => `${n} Monte Carlo passes`,
     seed: (s: number): string => `Seed ${s}`,
     headlineLine1: 'Who lifts the trophy in the',
     headlineLine2: '2026 tournament?',
-    sub: (n: string): { intro: string; n: string; emphasis: string; tail: string } => ({
-      intro: 'An offline Monte Carlo simulator runs the entire knockout draw ',
-      n,
-      emphasis: ' probabilities',
-      tail:
-        ' times using a national-team Dixon-Coles model with a confederation-strength correction. These numbers are',
-      // closing fragment used after the emphasised word:
-    }),
-    subTail: ', not forecasts — the next page reload tells the same story with the same seed.',
+    sub: (
+      n: string,
+      played: number,
+    ): {
+      intro: string;
+      playedCount: string;
+      middle: string;
+      n: string;
+      tail1: string;
+      emphasis: string;
+      tail2: string;
+    } =>
+      played === 0
+        ? {
+            intro: 'An offline Monte Carlo simulator runs the entire knockout draw ',
+            playedCount: '',
+            middle: '',
+            n,
+            tail1:
+              ' times using a national-team Dixon-Coles model with a confederation-strength correction. These numbers are',
+            emphasis: ' probabilities',
+            tail2:
+              ', not forecasts — the next page reload tells the same story with the same seed.',
+          }
+        : {
+            intro: 'With ',
+            playedCount: String(played),
+            middle: ' matches now pinned, the simulator re-samples the remaining draw ',
+            n,
+            tail1:
+              ' times using a national-team Dixon-Coles model with a confederation-strength correction. These are',
+            emphasis: ' live probabilities',
+            tail2:
+              " over what's still to play, not forecasts — the same seed always tells the same story.",
+          },
     statRunModel: 'Run model',
     statRunModelValue: 'Confed DC',
     statRunModelFoot: 'Phase 9B.2',
@@ -217,21 +244,48 @@ const es: typeof en = {
   },
   home: {
     docTitle: 'Probabilidad de título · Global Football 2026 Predictor',
-    kickerChip: 'Predicción previa al torneo',
+    kickerChip: (played: number): string =>
+      played === 0 ? 'Predicción previa al torneo' : `${played} partidos jugados · en vivo`,
     runMeta: (date: string): string => `Ejecutado ${date} UTC`,
     mcPasses: (n: string): string => `${n} simulaciones Monte Carlo`,
     seed: (s: number): string => `Semilla ${s}`,
     headlineLine1: '¿Quién levanta el trofeo en el',
     headlineLine2: 'torneo de 2026?',
-    sub: (n: string): { intro: string; n: string; emphasis: string; tail: string } => ({
-      intro: 'Un simulador Monte Carlo fuera de línea recorre todo el cuadro eliminatorio ',
-      n,
-      emphasis: ' probabilidades',
-      tail:
-        ' veces usando un modelo Dixon-Coles para selecciones con una corrección de fuerza por confederación. Estos números son',
-    }),
-    subTail:
-      ', no pronósticos — al recargar la página, la misma semilla cuenta la misma historia.',
+    sub: (
+      n: string,
+      played: number,
+    ): {
+      intro: string;
+      playedCount: string;
+      middle: string;
+      n: string;
+      tail1: string;
+      emphasis: string;
+      tail2: string;
+    } =>
+      played === 0
+        ? {
+            intro: 'Un simulador Monte Carlo fuera de línea recorre todo el cuadro eliminatorio ',
+            playedCount: '',
+            middle: '',
+            n,
+            tail1:
+              ' veces usando un modelo Dixon-Coles para selecciones con una corrección de fuerza por confederación. Estos números son',
+            emphasis: ' probabilidades',
+            tail2:
+              ', no pronósticos — al recargar la página, la misma semilla cuenta la misma historia.',
+          }
+        : {
+            intro: 'Con ',
+            playedCount: String(played),
+            middle: ' partidos ya fijados, el simulador vuelve a sortear el resto del cuadro ',
+            n,
+            tail1:
+              ' veces usando un modelo Dixon-Coles para selecciones con una corrección de fuerza por confederación. Estas son',
+            emphasis: ' probabilidades en vivo',
+            tail2:
+              ' sobre lo que queda por jugar, no pronósticos — la misma semilla siempre cuenta la misma historia.',
+          },
     statRunModel: 'Modelo',
     statRunModelValue: 'Confed DC',
     statRunModelFoot: 'Fase 9B.2',

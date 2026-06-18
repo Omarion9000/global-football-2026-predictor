@@ -59,6 +59,13 @@ describe('i18n dictionary content guards', () => {
       expect(d.home.seed(42)).toMatch(/42/);
       expect(d.home.rank('01')).toMatch(/01/);
       expect(d.home.group('A')).toMatch(/A/);
+      // The kicker chip toggles wording on played count > 0.
+      expect(d.home.kickerChip(0).length).toBeGreaterThan(0);
+      expect(d.home.kickerChip(24)).toMatch(/24/);
+      // The hero sub() returns a shape object; both played values produce
+      // non-empty intros.
+      expect(d.home.sub('10,000', 0).intro.length).toBeGreaterThan(0);
+      expect(d.home.sub('10,000', 24).playedCount).toBe('24');
       expect(d.groups.meta(12)).toMatch(/12/);
       expect(d.groups.advBadge('80%')).toMatch(/80%/);
       expect(d.bracket.winnerGroup('A')).toMatch(/A/);

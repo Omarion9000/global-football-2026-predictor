@@ -1,12 +1,12 @@
 {
   "meta": {
-    "generatedAt": "2026-06-18T01:12:50.617Z",
+    "generatedAt": "2026-06-18T06:48:28.380Z",
     "model": "confed",
     "seed": 42,
     "n": 10000,
-    "runtimeMs": 12264,
-    "playedMatches": 0,
-    "note": "Canonical pre-tournament simulator run. Reproduce with: pnpm sim:tournament --model=confed --seed=42 --n=10000 --write-ui-json"
+    "runtimeMs": 12515,
+    "playedMatches": 24,
+    "note": "Canonical live simulator run with 24 match(es) pinned. Reproduce with: pnpm sim:tournament --model=confed --seed=42 --n=10000 --write-ui-json"
   },
   "teams": [
     {
@@ -16,11 +16,11 @@
       "iso2": "es",
       "confederation": "UEFA",
       "group": "H",
-      "pR16": 0.8,
-      "pQF": 0.6053,
-      "pSF": 0.4428,
-      "pFinal": 0.302,
-      "pTitle": 0.1995
+      "pR16": 0.7692,
+      "pQF": 0.5812,
+      "pSF": 0.424,
+      "pFinal": 0.2891,
+      "pTitle": 0.1862
     },
     {
       "slug": "brazil",
@@ -29,24 +29,11 @@
       "iso2": "br",
       "confederation": "CONMEBOL",
       "group": "C",
-      "pR16": 0.7862,
-      "pQF": 0.6283,
-      "pSF": 0.4581,
-      "pFinal": 0.2655,
-      "pTitle": 0.1505
-    },
-    {
-      "slug": "argentina",
-      "displayName": "Argentina",
-      "code": "ARG",
-      "iso2": "ar",
-      "confederation": "CONMEBOL",
-      "group": "J",
-      "pR16": 0.6393,
-      "pQF": 0.3931,
-      "pSF": 0.2378,
-      "pFinal": 0.1602,
-      "pTitle": 0.0957
+      "pR16": 0.7825,
+      "pQF": 0.6261,
+      "pSF": 0.4574,
+      "pFinal": 0.273,
+      "pTitle": 0.1593
     },
     {
       "slug": "england",
@@ -55,11 +42,24 @@
       "iso2": "gb-eng",
       "confederation": "UEFA",
       "group": "L",
-      "pR16": 0.6594,
-      "pQF": 0.4045,
-      "pSF": 0.2395,
-      "pFinal": 0.1529,
-      "pTitle": 0.0831
+      "pR16": 0.6679,
+      "pQF": 0.4186,
+      "pSF": 0.2398,
+      "pFinal": 0.1552,
+      "pTitle": 0.0896
+    },
+    {
+      "slug": "argentina",
+      "displayName": "Argentina",
+      "code": "ARG",
+      "iso2": "ar",
+      "confederation": "CONMEBOL",
+      "group": "J",
+      "pR16": 0.6629,
+      "pQF": 0.4016,
+      "pSF": 0.2325,
+      "pFinal": 0.1506,
+      "pTitle": 0.0884
     },
     {
       "slug": "germany",
@@ -68,11 +68,11 @@
       "iso2": "de",
       "confederation": "UEFA",
       "group": "E",
-      "pR16": 0.7268,
-      "pQF": 0.477,
-      "pSF": 0.2628,
-      "pFinal": 0.1442,
-      "pTitle": 0.075
+      "pR16": 0.7493,
+      "pQF": 0.5003,
+      "pSF": 0.2874,
+      "pFinal": 0.1647,
+      "pTitle": 0.081
     },
     {
       "slug": "portugal",
@@ -81,11 +81,11 @@
       "iso2": "pt",
       "confederation": "UEFA",
       "group": "K",
-      "pR16": 0.6234,
-      "pQF": 0.3598,
-      "pSF": 0.1989,
-      "pFinal": 0.1244,
-      "pTitle": 0.0647
+      "pR16": 0.5706,
+      "pQF": 0.328,
+      "pSF": 0.185,
+      "pFinal": 0.1156,
+      "pTitle": 0.0628
     },
     {
       "slug": "france",
@@ -94,11 +94,11 @@
       "iso2": "fr",
       "confederation": "UEFA",
       "group": "I",
-      "pR16": 0.5788,
-      "pQF": 0.3272,
-      "pSF": 0.1784,
-      "pFinal": 0.1081,
-      "pTitle": 0.0566
+      "pR16": 0.6257,
+      "pQF": 0.3367,
+      "pSF": 0.1828,
+      "pFinal": 0.1128,
+      "pTitle": 0.0591
     },
     {
       "slug": "netherlands",
@@ -107,11 +107,11 @@
       "iso2": "nl",
       "confederation": "UEFA",
       "group": "F",
-      "pR16": 0.6071,
-      "pQF": 0.3375,
-      "pSF": 0.1786,
-      "pFinal": 0.092,
-      "pTitle": 0.0422
+      "pR16": 0.6005,
+      "pQF": 0.3408,
+      "pSF": 0.1892,
+      "pFinal": 0.0964,
+      "pTitle": 0.0464
     },
     {
       "slug": "belgium",
@@ -120,11 +120,11 @@
       "iso2": "be",
       "confederation": "UEFA",
       "group": "G",
-      "pR16": 0.6368,
-      "pQF": 0.2996,
-      "pSF": 0.1724,
-      "pFinal": 0.0912,
-      "pTitle": 0.0418
+      "pR16": 0.6309,
+      "pQF": 0.3148,
+      "pSF": 0.1804,
+      "pFinal": 0.0916,
+      "pTitle": 0.0424
     },
     {
       "slug": "uruguay",
@@ -133,37 +133,11 @@
       "iso2": "uy",
       "confederation": "CONMEBOL",
       "group": "H",
-      "pR16": 0.5831,
-      "pQF": 0.3306,
-      "pSF": 0.1863,
-      "pFinal": 0.0755,
-      "pTitle": 0.0298
-    },
-    {
-      "slug": "colombia",
-      "displayName": "Colombia",
-      "code": "COL",
-      "iso2": "co",
-      "confederation": "CONMEBOL",
-      "group": "K",
-      "pR16": 0.5021,
-      "pQF": 0.2508,
-      "pSF": 0.1122,
-      "pFinal": 0.0608,
-      "pTitle": 0.0278
-    },
-    {
-      "slug": "morocco",
-      "displayName": "Morocco",
-      "code": "MAR",
-      "iso2": "ma",
-      "confederation": "CAF",
-      "group": "C",
-      "pR16": 0.5388,
-      "pQF": 0.3304,
-      "pSF": 0.1626,
-      "pFinal": 0.0631,
-      "pTitle": 0.0237
+      "pR16": 0.5297,
+      "pQF": 0.3055,
+      "pSF": 0.1694,
+      "pFinal": 0.0748,
+      "pTitle": 0.0283
     },
     {
       "slug": "switzerland",
@@ -172,11 +146,37 @@
       "iso2": "ch",
       "confederation": "UEFA",
       "group": "B",
-      "pR16": 0.6326,
-      "pQF": 0.3946,
-      "pSF": 0.179,
-      "pFinal": 0.0632,
-      "pTitle": 0.0235
+      "pR16": 0.6376,
+      "pQF": 0.3984,
+      "pSF": 0.1905,
+      "pFinal": 0.0718,
+      "pTitle": 0.0254
+    },
+    {
+      "slug": "morocco",
+      "displayName": "Morocco",
+      "code": "MAR",
+      "iso2": "ma",
+      "confederation": "CAF",
+      "group": "C",
+      "pR16": 0.5668,
+      "pQF": 0.3627,
+      "pSF": 0.1836,
+      "pFinal": 0.067,
+      "pTitle": 0.0254
+    },
+    {
+      "slug": "colombia",
+      "displayName": "Colombia",
+      "code": "COL",
+      "iso2": "co",
+      "confederation": "CONMEBOL",
+      "group": "K",
+      "pR16": 0.4867,
+      "pQF": 0.2388,
+      "pSF": 0.1041,
+      "pFinal": 0.0543,
+      "pTitle": 0.0239
     },
     {
       "slug": "croatia",
@@ -185,11 +185,11 @@
       "iso2": "hr",
       "confederation": "UEFA",
       "group": "L",
-      "pR16": 0.4297,
-      "pQF": 0.1943,
-      "pSF": 0.0809,
-      "pFinal": 0.0395,
-      "pTitle": 0.0158
+      "pR16": 0.3731,
+      "pQF": 0.1653,
+      "pSF": 0.067,
+      "pFinal": 0.0316,
+      "pTitle": 0.0131
     },
     {
       "slug": "ecuador",
@@ -198,11 +198,11 @@
       "iso2": "ec",
       "confederation": "CONMEBOL",
       "group": "E",
-      "pR16": 0.4795,
-      "pQF": 0.2314,
-      "pSF": 0.1059,
-      "pFinal": 0.042,
-      "pTitle": 0.0127
+      "pR16": 0.349,
+      "pQF": 0.1751,
+      "pSF": 0.0832,
+      "pFinal": 0.031,
+      "pTitle": 0.0115
     },
     {
       "slug": "norway",
@@ -211,76 +211,11 @@
       "iso2": "no",
       "confederation": "UEFA",
       "group": "I",
-      "pR16": 0.3527,
-      "pQF": 0.1489,
-      "pSF": 0.0567,
-      "pFinal": 0.0245,
-      "pTitle": 0.0081
-    },
-    {
-      "slug": "turkey",
-      "displayName": "Turkey",
-      "code": "TUR",
-      "iso2": "tr",
-      "confederation": "UEFA",
-      "group": "D",
-      "pR16": 0.385,
-      "pQF": 0.1657,
-      "pSF": 0.0718,
-      "pFinal": 0.0215,
-      "pTitle": 0.0067
-    },
-    {
-      "slug": "austria",
-      "displayName": "Austria",
-      "code": "AUT",
-      "iso2": "at",
-      "confederation": "UEFA",
-      "group": "J",
-      "pR16": 0.289,
-      "pQF": 0.1087,
-      "pSF": 0.0362,
-      "pFinal": 0.0123,
-      "pTitle": 0.0049
-    },
-    {
-      "slug": "scotland",
-      "displayName": "Scotland",
-      "code": "SCO",
-      "iso2": "gb-sct",
-      "confederation": "UEFA",
-      "group": "C",
-      "pR16": 0.3303,
-      "pQF": 0.1622,
-      "pSF": 0.0615,
-      "pFinal": 0.0169,
-      "pTitle": 0.0046
-    },
-    {
-      "slug": "sweden",
-      "displayName": "Sweden",
-      "code": "SWE",
-      "iso2": "se",
-      "confederation": "UEFA",
-      "group": "F",
-      "pR16": 0.3232,
-      "pQF": 0.1297,
-      "pSF": 0.0533,
-      "pFinal": 0.0187,
-      "pTitle": 0.0045
-    },
-    {
-      "slug": "japan",
-      "displayName": "Japan",
-      "code": "JPN",
-      "iso2": "jp",
-      "confederation": "AFC",
-      "group": "F",
-      "pR16": 0.3216,
-      "pQF": 0.1293,
-      "pSF": 0.0524,
-      "pFinal": 0.0155,
-      "pTitle": 0.0044
+      "pR16": 0.4072,
+      "pQF": 0.1728,
+      "pSF": 0.0623,
+      "pFinal": 0.0252,
+      "pTitle": 0.0095
     },
     {
       "slug": "mexico",
@@ -289,11 +224,37 @@
       "iso2": "mx",
       "confederation": "CONCACAF",
       "group": "A",
-      "pR16": 0.4186,
-      "pQF": 0.1694,
-      "pSF": 0.0556,
-      "pFinal": 0.0136,
-      "pTitle": 0.004
+      "pR16": 0.4933,
+      "pQF": 0.2066,
+      "pSF": 0.0691,
+      "pFinal": 0.0202,
+      "pTitle": 0.0051
+    },
+    {
+      "slug": "japan",
+      "displayName": "Japan",
+      "code": "JPN",
+      "iso2": "jp",
+      "confederation": "AFC",
+      "group": "F",
+      "pR16": 0.3584,
+      "pQF": 0.1437,
+      "pSF": 0.0562,
+      "pFinal": 0.0181,
+      "pTitle": 0.0048
+    },
+    {
+      "slug": "sweden",
+      "displayName": "Sweden",
+      "code": "SWE",
+      "iso2": "se",
+      "confederation": "UEFA",
+      "group": "F",
+      "pR16": 0.3329,
+      "pQF": 0.1395,
+      "pSF": 0.0554,
+      "pFinal": 0.0179,
+      "pTitle": 0.0048
     },
     {
       "slug": "senegal",
@@ -302,50 +263,50 @@
       "iso2": "sn",
       "confederation": "CAF",
       "group": "I",
-      "pR16": 0.2845,
-      "pQF": 0.1079,
-      "pSF": 0.0378,
-      "pFinal": 0.0132,
+      "pR16": 0.2263,
+      "pQF": 0.0934,
+      "pSF": 0.0359,
+      "pFinal": 0.0109,
+      "pTitle": 0.004
+    },
+    {
+      "slug": "turkey",
+      "displayName": "Turkey",
+      "code": "TUR",
+      "iso2": "tr",
+      "confederation": "UEFA",
+      "group": "D",
+      "pR16": 0.2266,
+      "pQF": 0.1067,
+      "pSF": 0.0435,
+      "pFinal": 0.0138,
+      "pTitle": 0.0039
+    },
+    {
+      "slug": "scotland",
+      "displayName": "Scotland",
+      "code": "SCO",
+      "iso2": "gb-sct",
+      "confederation": "UEFA",
+      "group": "C",
+      "pR16": 0.3345,
+      "pQF": 0.1604,
+      "pSF": 0.0599,
+      "pFinal": 0.0157,
       "pTitle": 0.0036
     },
     {
-      "slug": "paraguay",
-      "displayName": "Paraguay",
-      "code": "PAR",
-      "iso2": "py",
-      "confederation": "CONMEBOL",
-      "group": "D",
-      "pR16": 0.2876,
-      "pQF": 0.1146,
-      "pSF": 0.04,
-      "pFinal": 0.0108,
-      "pTitle": 0.0026
-    },
-    {
-      "slug": "egypt",
-      "displayName": "Egypt",
-      "code": "EGY",
-      "iso2": "eg",
-      "confederation": "CAF",
-      "group": "G",
-      "pR16": 0.2666,
-      "pQF": 0.0871,
-      "pSF": 0.0307,
-      "pFinal": 0.0086,
-      "pTitle": 0.0022
-    },
-    {
-      "slug": "czech-republic",
-      "displayName": "Czech Republic",
-      "code": "CZE",
-      "iso2": "cz",
+      "slug": "austria",
+      "displayName": "Austria",
+      "code": "AUT",
+      "iso2": "at",
       "confederation": "UEFA",
-      "group": "A",
-      "pR16": 0.3759,
-      "pQF": 0.1514,
-      "pSF": 0.0468,
-      "pFinal": 0.0102,
-      "pTitle": 0.0019
+      "group": "J",
+      "pR16": 0.3645,
+      "pQF": 0.1244,
+      "pSF": 0.0392,
+      "pFinal": 0.0122,
+      "pTitle": 0.003
     },
     {
       "slug": "australia",
@@ -354,50 +315,11 @@
       "iso2": "au",
       "confederation": "AFC",
       "group": "D",
-      "pR16": 0.2464,
-      "pQF": 0.0894,
-      "pSF": 0.0303,
-      "pFinal": 0.0065,
-      "pTitle": 0.0019
-    },
-    {
-      "slug": "iran",
-      "displayName": "Iran",
-      "code": "IRN",
-      "iso2": "ir",
-      "confederation": "AFC",
-      "group": "G",
-      "pR16": 0.2353,
-      "pQF": 0.0717,
-      "pSF": 0.0223,
-      "pFinal": 0.0052,
-      "pTitle": 0.0012
-    },
-    {
-      "slug": "south-korea",
-      "displayName": "South Korea",
-      "code": "KOR",
-      "iso2": "kr",
-      "confederation": "AFC",
-      "group": "A",
-      "pR16": 0.3173,
-      "pQF": 0.1164,
-      "pSF": 0.0343,
-      "pFinal": 0.0072,
-      "pTitle": 0.0011
-    },
-    {
-      "slug": "canada",
-      "displayName": "Canada",
-      "code": "CAN",
-      "iso2": "ca",
-      "confederation": "CONCACAF",
-      "group": "B",
-      "pR16": 0.3334,
-      "pQF": 0.1248,
-      "pSF": 0.0363,
-      "pFinal": 0.0064,
-      "pTitle": 0.0011
+      "pR16": 0.3768,
+      "pQF": 0.1377,
+      "pSF": 0.0492,
+      "pFinal": 0.0124,
+      "pTitle": 0.0028
     },
     {
       "slug": "ivory-coast",
@@ -406,11 +328,11 @@
       "iso2": "ci",
       "confederation": "CAF",
       "group": "E",
-      "pR16": 0.2388,
-      "pQF": 0.0838,
-      "pSF": 0.0268,
-      "pFinal": 0.0052,
-      "pTitle": 0.001
+      "pR16": 0.3617,
+      "pQF": 0.1286,
+      "pSF": 0.0409,
+      "pFinal": 0.0102,
+      "pTitle": 0.0025
     },
     {
       "slug": "united-states",
@@ -419,11 +341,76 @@
       "iso2": "us",
       "confederation": "CONCACAF",
       "group": "D",
-      "pR16": 0.2449,
-      "pQF": 0.0885,
-      "pSF": 0.0288,
-      "pFinal": 0.0054,
-      "pTitle": 0.0009
+      "pR16": 0.3745,
+      "pQF": 0.1327,
+      "pSF": 0.042,
+      "pFinal": 0.009,
+      "pTitle": 0.0022
+    },
+    {
+      "slug": "south-korea",
+      "displayName": "South Korea",
+      "code": "KOR",
+      "iso2": "kr",
+      "confederation": "AFC",
+      "group": "A",
+      "pR16": 0.4525,
+      "pQF": 0.1617,
+      "pSF": 0.0486,
+      "pFinal": 0.0087,
+      "pTitle": 0.002
+    },
+    {
+      "slug": "czech-republic",
+      "displayName": "Czech Republic",
+      "code": "CZE",
+      "iso2": "cz",
+      "confederation": "UEFA",
+      "group": "A",
+      "pR16": 0.2513,
+      "pQF": 0.0935,
+      "pSF": 0.0315,
+      "pFinal": 0.0085,
+      "pTitle": 0.0015
+    },
+    {
+      "slug": "egypt",
+      "displayName": "Egypt",
+      "code": "EGY",
+      "iso2": "eg",
+      "confederation": "CAF",
+      "group": "G",
+      "pR16": 0.296,
+      "pQF": 0.0962,
+      "pSF": 0.0323,
+      "pFinal": 0.0075,
+      "pTitle": 0.0013
+    },
+    {
+      "slug": "canada",
+      "displayName": "Canada",
+      "code": "CAN",
+      "iso2": "ca",
+      "confederation": "CONCACAF",
+      "group": "B",
+      "pR16": 0.3246,
+      "pQF": 0.1168,
+      "pSF": 0.0306,
+      "pFinal": 0.0062,
+      "pTitle": 0.0012
+    },
+    {
+      "slug": "paraguay",
+      "displayName": "Paraguay",
+      "code": "PAR",
+      "iso2": "py",
+      "confederation": "CONMEBOL",
+      "group": "D",
+      "pR16": 0.1478,
+      "pQF": 0.0589,
+      "pSF": 0.0213,
+      "pFinal": 0.0048,
+      "pTitle": 0.001
     },
     {
       "slug": "algeria",
@@ -432,11 +419,24 @@
       "iso2": "dz",
       "confederation": "CAF",
       "group": "J",
-      "pR16": 0.1798,
-      "pQF": 0.0537,
-      "pSF": 0.0139,
-      "pFinal": 0.0032,
-      "pTitle": 0.0008
+      "pR16": 0.1593,
+      "pQF": 0.0532,
+      "pSF": 0.0156,
+      "pFinal": 0.0036,
+      "pTitle": 0.001
+    },
+    {
+      "slug": "iran",
+      "displayName": "Iran",
+      "code": "IRN",
+      "iso2": "ir",
+      "confederation": "AFC",
+      "group": "G",
+      "pR16": 0.1925,
+      "pQF": 0.0615,
+      "pSF": 0.0193,
+      "pFinal": 0.0036,
+      "pTitle": 0.0009
     },
     {
       "slug": "tunisia",
@@ -445,24 +445,11 @@
       "iso2": "tn",
       "confederation": "CAF",
       "group": "F",
-      "pR16": 0.1682,
-      "pQF": 0.055,
-      "pSF": 0.0156,
-      "pFinal": 0.0031,
-      "pTitle": 0.0008
-    },
-    {
-      "slug": "dr-congo",
-      "displayName": "DR Congo",
-      "code": "COD",
-      "iso2": "cd",
-      "confederation": "CAF",
-      "group": "K",
-      "pR16": 0.0981,
-      "pQF": 0.0259,
-      "pSF": 0.005,
-      "pFinal": 0.001,
-      "pTitle": 0.0004
+      "pR16": 0.1754,
+      "pQF": 0.0575,
+      "pSF": 0.0168,
+      "pFinal": 0.0036,
+      "pTitle": 0.0006
     },
     {
       "slug": "ghana",
@@ -471,24 +458,11 @@
       "iso2": "gh",
       "confederation": "CAF",
       "group": "L",
-      "pR16": 0.1004,
-      "pQF": 0.0241,
-      "pSF": 0.0044,
-      "pFinal": 0.0013,
-      "pTitle": 0.0002
-    },
-    {
-      "slug": "south-africa",
-      "displayName": "South Africa",
-      "code": "RSA",
-      "iso2": "za",
-      "confederation": "CAF",
-      "group": "A",
-      "pR16": 0.1735,
-      "pQF": 0.0442,
+      "pR16": 0.1739,
+      "pQF": 0.0423,
       "pSF": 0.0094,
-      "pFinal": 0.0009,
-      "pTitle": 0.0002
+      "pFinal": 0.0018,
+      "pTitle": 0.0004
     },
     {
       "slug": "saudi-arabia",
@@ -497,11 +471,11 @@
       "iso2": "sa",
       "confederation": "AFC",
       "group": "H",
-      "pR16": 0.1003,
-      "pQF": 0.0245,
-      "pSF": 0.0049,
-      "pFinal": 0.0006,
-      "pTitle": 0.0002
+      "pR16": 0.1306,
+      "pQF": 0.0294,
+      "pSF": 0.0077,
+      "pFinal": 0.0009,
+      "pTitle": 0.0004
     },
     {
       "slug": "bosnia-and-herzegovina",
@@ -510,10 +484,36 @@
       "iso2": "ba",
       "confederation": "UEFA",
       "group": "B",
-      "pR16": 0.2068,
-      "pQF": 0.0603,
-      "pSF": 0.0128,
-      "pFinal": 0.0024,
+      "pR16": 0.2113,
+      "pQF": 0.057,
+      "pSF": 0.012,
+      "pFinal": 0.0015,
+      "pTitle": 0.0003
+    },
+    {
+      "slug": "south-africa",
+      "displayName": "South Africa",
+      "code": "RSA",
+      "iso2": "za",
+      "confederation": "CAF",
+      "group": "A",
+      "pR16": 0.0909,
+      "pQF": 0.0251,
+      "pSF": 0.0054,
+      "pFinal": 0.0009,
+      "pTitle": 0.0001
+    },
+    {
+      "slug": "jordan",
+      "displayName": "Jordan",
+      "code": "JOR",
+      "iso2": "jo",
+      "confederation": "AFC",
+      "group": "J",
+      "pR16": 0.0371,
+      "pQF": 0.0085,
+      "pSF": 0.0031,
+      "pFinal": 0.0006,
       "pTitle": 0.0001
     },
     {
@@ -523,10 +523,10 @@
       "iso2": "cv",
       "confederation": "CAF",
       "group": "H",
-      "pR16": 0.0542,
-      "pQF": 0.011,
-      "pSF": 0.0026,
-      "pFinal": 0.0003,
+      "pR16": 0.0884,
+      "pQF": 0.0154,
+      "pSF": 0.003,
+      "pFinal": 0.0004,
       "pTitle": 0.0001
     },
     {
@@ -536,36 +536,23 @@
       "iso2": "pa",
       "confederation": "CONCACAF",
       "group": "L",
-      "pR16": 0.0664,
-      "pQF": 0.0126,
-      "pSF": 0.0024,
+      "pR16": 0.0212,
+      "pQF": 0.0047,
+      "pSF": 0.0006,
       "pFinal": 0.0002,
       "pTitle": 0.0001
     },
     {
-      "slug": "uzbekistan",
-      "displayName": "Uzbekistan",
-      "code": "UZB",
-      "iso2": "uz",
-      "confederation": "AFC",
+      "slug": "dr-congo",
+      "displayName": "DR Congo",
+      "code": "COD",
+      "iso2": "cd",
+      "confederation": "CAF",
       "group": "K",
-      "pR16": 0.0822,
-      "pQF": 0.0184,
-      "pSF": 0.0036,
-      "pFinal": 0.0004,
-      "pTitle": 0
-    },
-    {
-      "slug": "jordan",
-      "displayName": "Jordan",
-      "code": "JOR",
-      "iso2": "jo",
-      "confederation": "AFC",
-      "group": "J",
-      "pR16": 0.0622,
-      "pQF": 0.0128,
-      "pSF": 0.0026,
-      "pFinal": 0.0003,
+      "pR16": 0.1237,
+      "pQF": 0.0275,
+      "pSF": 0.0053,
+      "pFinal": 0.0012,
       "pTitle": 0
     },
     {
@@ -575,23 +562,23 @@
       "iso2": "qa",
       "confederation": "AFC",
       "group": "B",
-      "pR16": 0.0744,
-      "pQF": 0.0135,
-      "pSF": 0.0016,
-      "pFinal": 0,
+      "pR16": 0.0777,
+      "pQF": 0.0134,
+      "pSF": 0.0013,
+      "pFinal": 0.0003,
       "pTitle": 0
     },
     {
-      "slug": "new-zealand",
-      "displayName": "New Zealand",
-      "code": "NZL",
-      "iso2": "nz",
-      "confederation": "OFC",
-      "group": "G",
-      "pR16": 0.0526,
-      "pQF": 0.0095,
-      "pSF": 0.0013,
-      "pFinal": 0,
+      "slug": "uzbekistan",
+      "displayName": "Uzbekistan",
+      "code": "UZB",
+      "iso2": "uz",
+      "confederation": "AFC",
+      "group": "K",
+      "pR16": 0.0714,
+      "pQF": 0.0154,
+      "pSF": 0.0024,
+      "pFinal": 0.0002,
       "pTitle": 0
     },
     {
@@ -601,23 +588,23 @@
       "iso2": "iq",
       "confederation": "AFC",
       "group": "I",
-      "pR16": 0.0434,
-      "pQF": 0.0088,
+      "pR16": 0.021,
+      "pQF": 0.0055,
       "pSF": 0.0008,
-      "pFinal": 0,
+      "pFinal": 0.0002,
       "pTitle": 0
     },
     {
-      "slug": "curacao",
-      "displayName": "Curaçao",
-      "code": "CUW",
-      "iso2": "cw",
-      "confederation": "CONCACAF",
-      "group": "E",
-      "pR16": 0.0326,
-      "pQF": 0.0059,
-      "pSF": 0.0007,
-      "pFinal": 0,
+      "slug": "new-zealand",
+      "displayName": "New Zealand",
+      "code": "NZL",
+      "iso2": "nz",
+      "confederation": "OFC",
+      "group": "G",
+      "pR16": 0.0534,
+      "pQF": 0.0073,
+      "pSF": 0.0015,
+      "pFinal": 0.0001,
       "pTitle": 0
     },
     {
@@ -627,9 +614,22 @@
       "iso2": "ht",
       "confederation": "CONCACAF",
       "group": "C",
-      "pR16": 0.0302,
-      "pQF": 0.0059,
-      "pSF": 0.0006,
+      "pR16": 0.0244,
+      "pQF": 0.0068,
+      "pSF": 0.0011,
+      "pFinal": 0.0001,
+      "pTitle": 0
+    },
+    {
+      "slug": "curacao",
+      "displayName": "Curaçao",
+      "code": "CUW",
+      "iso2": "cw",
+      "confederation": "CONCACAF",
+      "group": "E",
+      "pR16": 0.0165,
+      "pQF": 0.002,
+      "pSF": 0.0005,
       "pFinal": 0,
       "pTitle": 0
     }
@@ -644,21 +644,10 @@
           "code": "MEX",
           "iso2": "mx",
           "confederation": "CONCACAF",
-          "p1st": 0.3205,
-          "p2nd": 0.2764,
-          "p3rd": 0.2366,
-          "p4th": 0.1665
-        },
-        {
-          "slug": "czech-republic",
-          "displayName": "Czech Republic",
-          "code": "CZE",
-          "iso2": "cz",
-          "confederation": "UEFA",
-          "p1st": 0.3022,
-          "p2nd": 0.2651,
-          "p3rd": 0.2398,
-          "p4th": 0.1929
+          "p1st": 0.496,
+          "p2nd": 0.3053,
+          "p3rd": 0.1769,
+          "p4th": 0.0218
         },
         {
           "slug": "south-korea",
@@ -666,10 +655,21 @@
           "code": "KOR",
           "iso2": "kr",
           "confederation": "AFC",
-          "p1st": 0.2492,
-          "p2nd": 0.2613,
-          "p3rd": 0.259,
-          "p4th": 0.2305
+          "p1st": 0.3987,
+          "p2nd": 0.4049,
+          "p3rd": 0.1446,
+          "p4th": 0.0518
+        },
+        {
+          "slug": "czech-republic",
+          "displayName": "Czech Republic",
+          "code": "CZE",
+          "iso2": "cz",
+          "confederation": "UEFA",
+          "p1st": 0.0789,
+          "p2nd": 0.1917,
+          "p3rd": 0.4203,
+          "p4th": 0.3091
         },
         {
           "slug": "south-africa",
@@ -677,10 +677,10 @@
           "code": "RSA",
           "iso2": "za",
           "confederation": "CAF",
-          "p1st": 0.1281,
-          "p2nd": 0.1972,
-          "p3rd": 0.2646,
-          "p4th": 0.4101
+          "p1st": 0.0264,
+          "p2nd": 0.0981,
+          "p3rd": 0.2582,
+          "p4th": 0.6173
         }
       ]
     },
@@ -693,10 +693,10 @@
           "code": "SUI",
           "iso2": "ch",
           "confederation": "UEFA",
-          "p1st": 0.6244,
-          "p2nd": 0.2386,
-          "p3rd": 0.0982,
-          "p4th": 0.0388
+          "p1st": 0.6317,
+          "p2nd": 0.2363,
+          "p3rd": 0.1019,
+          "p4th": 0.0301
         },
         {
           "slug": "canada",
@@ -704,10 +704,10 @@
           "code": "CAN",
           "iso2": "ca",
           "confederation": "CONCACAF",
-          "p1st": 0.2068,
-          "p2nd": 0.3543,
-          "p3rd": 0.2717,
-          "p4th": 0.1672
+          "p1st": 0.2091,
+          "p2nd": 0.3584,
+          "p3rd": 0.2726,
+          "p4th": 0.1599
         },
         {
           "slug": "bosnia-and-herzegovina",
@@ -715,10 +715,10 @@
           "code": "BIH",
           "iso2": "ba",
           "confederation": "UEFA",
-          "p1st": 0.1182,
-          "p2nd": 0.2651,
-          "p3rd": 0.3473,
-          "p4th": 0.2694
+          "p1st": 0.1141,
+          "p2nd": 0.2661,
+          "p3rd": 0.3482,
+          "p4th": 0.2716
         },
         {
           "slug": "qatar",
@@ -726,10 +726,10 @@
           "code": "QAT",
           "iso2": "qa",
           "confederation": "AFC",
-          "p1st": 0.0506,
-          "p2nd": 0.142,
-          "p3rd": 0.2828,
-          "p4th": 0.5246
+          "p1st": 0.0451,
+          "p2nd": 0.1392,
+          "p3rd": 0.2773,
+          "p4th": 0.5384
         }
       ]
     },
@@ -742,10 +742,10 @@
           "code": "BRA",
           "iso2": "br",
           "confederation": "CONMEBOL",
-          "p1st": 0.6242,
-          "p2nd": 0.2599,
-          "p3rd": 0.1013,
-          "p4th": 0.0146
+          "p1st": 0.5924,
+          "p2nd": 0.2734,
+          "p3rd": 0.1199,
+          "p4th": 0.0143
         },
         {
           "slug": "morocco",
@@ -753,10 +753,10 @@
           "code": "MAR",
           "iso2": "ma",
           "confederation": "CAF",
-          "p1st": 0.2445,
-          "p2nd": 0.4142,
-          "p3rd": 0.2726,
-          "p4th": 0.0687
+          "p1st": 0.2614,
+          "p2nd": 0.4449,
+          "p3rd": 0.2431,
+          "p4th": 0.0506
         },
         {
           "slug": "scotland",
@@ -764,10 +764,10 @@
           "code": "SCO",
           "iso2": "gb-sct",
           "confederation": "UEFA",
-          "p1st": 0.1221,
-          "p2nd": 0.2774,
-          "p3rd": 0.4459,
-          "p4th": 0.1546
+          "p1st": 0.1361,
+          "p2nd": 0.239,
+          "p3rd": 0.4726,
+          "p4th": 0.1523
         },
         {
           "slug": "haiti",
@@ -775,10 +775,10 @@
           "code": "HAI",
           "iso2": "ht",
           "confederation": "CONCACAF",
-          "p1st": 0.0092,
-          "p2nd": 0.0485,
-          "p3rd": 0.1802,
-          "p4th": 0.7621
+          "p1st": 0.0101,
+          "p2nd": 0.0427,
+          "p3rd": 0.1644,
+          "p4th": 0.7828
         }
       ]
     },
@@ -786,26 +786,15 @@
       "group": "D",
       "teams": [
         {
-          "slug": "turkey",
-          "displayName": "Turkey",
-          "code": "TUR",
-          "iso2": "tr",
-          "confederation": "UEFA",
-          "p1st": 0.348,
-          "p2nd": 0.2602,
-          "p3rd": 0.2184,
-          "p4th": 0.1734
-        },
-        {
-          "slug": "paraguay",
-          "displayName": "Paraguay",
-          "code": "PAR",
-          "iso2": "py",
-          "confederation": "CONMEBOL",
-          "p1st": 0.2454,
-          "p2nd": 0.2588,
-          "p3rd": 0.2494,
-          "p4th": 0.2464
+          "slug": "united-states",
+          "displayName": "United States",
+          "code": "USA",
+          "iso2": "us",
+          "confederation": "CONCACAF",
+          "p1st": 0.4388,
+          "p2nd": 0.3267,
+          "p3rd": 0.186,
+          "p4th": 0.0485
         },
         {
           "slug": "australia",
@@ -813,21 +802,32 @@
           "code": "AUS",
           "iso2": "au",
           "confederation": "AFC",
-          "p1st": 0.2035,
-          "p2nd": 0.2444,
-          "p3rd": 0.2604,
-          "p4th": 0.2917
+          "p1st": 0.4215,
+          "p2nd": 0.3692,
+          "p3rd": 0.1569,
+          "p4th": 0.0524
         },
         {
-          "slug": "united-states",
-          "displayName": "United States",
-          "code": "USA",
-          "iso2": "us",
-          "confederation": "CONCACAF",
-          "p1st": 0.2031,
-          "p2nd": 0.2366,
-          "p3rd": 0.2718,
-          "p4th": 0.2885
+          "slug": "turkey",
+          "displayName": "Turkey",
+          "code": "TUR",
+          "iso2": "tr",
+          "confederation": "UEFA",
+          "p1st": 0.0833,
+          "p2nd": 0.1884,
+          "p3rd": 0.3584,
+          "p4th": 0.3699
+        },
+        {
+          "slug": "paraguay",
+          "displayName": "Paraguay",
+          "code": "PAR",
+          "iso2": "py",
+          "confederation": "CONMEBOL",
+          "p1st": 0.0564,
+          "p2nd": 0.1157,
+          "p3rd": 0.2987,
+          "p4th": 0.5292
         }
       ]
     },
@@ -840,21 +840,10 @@
           "code": "GER",
           "iso2": "de",
           "confederation": "UEFA",
-          "p1st": 0.6079,
-          "p2nd": 0.2621,
-          "p3rd": 0.1087,
-          "p4th": 0.0213
-        },
-        {
-          "slug": "ecuador",
-          "displayName": "Ecuador",
-          "code": "ECU",
-          "iso2": "ec",
-          "confederation": "CONMEBOL",
-          "p1st": 0.2722,
-          "p2nd": 0.4147,
-          "p3rd": 0.24,
-          "p4th": 0.0731
+          "p1st": 0.6999,
+          "p2nd": 0.2135,
+          "p3rd": 0.084,
+          "p4th": 0.0026
         },
         {
           "slug": "ivory-coast",
@@ -862,10 +851,21 @@
           "code": "CIV",
           "iso2": "ci",
           "confederation": "CAF",
-          "p1st": 0.1051,
-          "p2nd": 0.2536,
-          "p3rd": 0.4337,
-          "p4th": 0.2076
+          "p1st": 0.2173,
+          "p2nd": 0.5972,
+          "p3rd": 0.1348,
+          "p4th": 0.0507
+        },
+        {
+          "slug": "ecuador",
+          "displayName": "Ecuador",
+          "code": "ECU",
+          "iso2": "ec",
+          "confederation": "CONMEBOL",
+          "p1st": 0.0794,
+          "p2nd": 0.147,
+          "p3rd": 0.6283,
+          "p4th": 0.1453
         },
         {
           "slug": "curacao",
@@ -873,10 +873,10 @@
           "code": "CUW",
           "iso2": "cw",
           "confederation": "CONCACAF",
-          "p1st": 0.0148,
-          "p2nd": 0.0696,
-          "p3rd": 0.2176,
-          "p4th": 0.698
+          "p1st": 0.0034,
+          "p2nd": 0.0423,
+          "p3rd": 0.1529,
+          "p4th": 0.8014
         }
       ]
     },
@@ -889,21 +889,10 @@
           "code": "NED",
           "iso2": "nl",
           "confederation": "UEFA",
-          "p1st": 0.5173,
-          "p2nd": 0.254,
-          "p3rd": 0.1483,
-          "p4th": 0.0804
-        },
-        {
-          "slug": "japan",
-          "displayName": "Japan",
-          "code": "JPN",
-          "iso2": "jp",
-          "confederation": "AFC",
-          "p1st": 0.1951,
-          "p2nd": 0.2778,
-          "p3rd": 0.283,
-          "p4th": 0.2441
+          "p1st": 0.4502,
+          "p2nd": 0.2863,
+          "p3rd": 0.1815,
+          "p4th": 0.082
         },
         {
           "slug": "sweden",
@@ -911,10 +900,21 @@
           "code": "SWE",
           "iso2": "se",
           "confederation": "UEFA",
-          "p1st": 0.193,
-          "p2nd": 0.2815,
-          "p3rd": 0.28,
-          "p4th": 0.2455
+          "p1st": 0.2365,
+          "p2nd": 0.2389,
+          "p3rd": 0.2608,
+          "p4th": 0.2638
+        },
+        {
+          "slug": "japan",
+          "displayName": "Japan",
+          "code": "JPN",
+          "iso2": "jp",
+          "confederation": "AFC",
+          "p1st": 0.2028,
+          "p2nd": 0.3009,
+          "p3rd": 0.3012,
+          "p4th": 0.1951
         },
         {
           "slug": "tunisia",
@@ -922,10 +922,10 @@
           "code": "TUN",
           "iso2": "tn",
           "confederation": "CAF",
-          "p1st": 0.0946,
-          "p2nd": 0.1867,
-          "p3rd": 0.2887,
-          "p4th": 0.43
+          "p1st": 0.1105,
+          "p2nd": 0.1739,
+          "p3rd": 0.2565,
+          "p4th": 0.4591
         }
       ]
     },
@@ -938,10 +938,10 @@
           "code": "BEL",
           "iso2": "be",
           "confederation": "UEFA",
-          "p1st": 0.6504,
-          "p2nd": 0.2289,
-          "p3rd": 0.0936,
-          "p4th": 0.0271
+          "p1st": 0.6508,
+          "p2nd": 0.1908,
+          "p3rd": 0.1228,
+          "p4th": 0.0356
         },
         {
           "slug": "egypt",
@@ -949,10 +949,10 @@
           "code": "EGY",
           "iso2": "eg",
           "confederation": "CAF",
-          "p1st": 0.1712,
-          "p2nd": 0.3387,
-          "p3rd": 0.3187,
-          "p4th": 0.1714
+          "p1st": 0.1903,
+          "p2nd": 0.3591,
+          "p3rd": 0.3083,
+          "p4th": 0.1423
         },
         {
           "slug": "iran",
@@ -960,10 +960,10 @@
           "code": "IRN",
           "iso2": "ir",
           "confederation": "AFC",
-          "p1st": 0.1469,
-          "p2nd": 0.3169,
-          "p3rd": 0.3356,
-          "p4th": 0.2006
+          "p1st": 0.117,
+          "p2nd": 0.2984,
+          "p3rd": 0.3352,
+          "p4th": 0.2494
         },
         {
           "slug": "new-zealand",
@@ -971,10 +971,10 @@
           "code": "NZL",
           "iso2": "nz",
           "confederation": "OFC",
-          "p1st": 0.0315,
-          "p2nd": 0.1155,
-          "p3rd": 0.2521,
-          "p4th": 0.6009
+          "p1st": 0.0419,
+          "p2nd": 0.1517,
+          "p3rd": 0.2337,
+          "p4th": 0.5727
         }
       ]
     },
@@ -987,10 +987,10 @@
           "code": "ESP",
           "iso2": "es",
           "confederation": "UEFA",
-          "p1st": 0.7001,
-          "p2nd": 0.2484,
-          "p3rd": 0.0442,
-          "p4th": 0.0073
+          "p1st": 0.6005,
+          "p2nd": 0.2775,
+          "p3rd": 0.0905,
+          "p4th": 0.0315
         },
         {
           "slug": "uruguay",
@@ -998,10 +998,10 @@
           "code": "URU",
           "iso2": "uy",
           "confederation": "CONMEBOL",
-          "p1st": 0.2645,
-          "p2nd": 0.5296,
-          "p3rd": 0.1579,
-          "p4th": 0.048
+          "p1st": 0.3014,
+          "p2nd": 0.4095,
+          "p3rd": 0.2008,
+          "p4th": 0.0883
         },
         {
           "slug": "saudi-arabia",
@@ -1009,10 +1009,10 @@
           "code": "KSA",
           "iso2": "sa",
           "confederation": "AFC",
-          "p1st": 0.0219,
-          "p2nd": 0.1329,
-          "p3rd": 0.4534,
-          "p4th": 0.3918
+          "p1st": 0.058,
+          "p2nd": 0.1731,
+          "p3rd": 0.3663,
+          "p4th": 0.4026
         },
         {
           "slug": "cape-verde",
@@ -1020,10 +1020,10 @@
           "code": "CPV",
           "iso2": "cv",
           "confederation": "CAF",
-          "p1st": 0.0135,
-          "p2nd": 0.0891,
-          "p3rd": 0.3445,
-          "p4th": 0.5529
+          "p1st": 0.0401,
+          "p2nd": 0.1399,
+          "p3rd": 0.3424,
+          "p4th": 0.4776
         }
       ]
     },
@@ -1036,10 +1036,10 @@
           "code": "FRA",
           "iso2": "fr",
           "confederation": "UEFA",
-          "p1st": 0.5684,
-          "p2nd": 0.2636,
-          "p3rd": 0.1308,
-          "p4th": 0.0372
+          "p1st": 0.6807,
+          "p2nd": 0.2922,
+          "p3rd": 0.0216,
+          "p4th": 0.0055
         },
         {
           "slug": "norway",
@@ -1047,10 +1047,10 @@
           "code": "NOR",
           "iso2": "no",
           "confederation": "UEFA",
-          "p1st": 0.2433,
-          "p2nd": 0.3393,
-          "p3rd": 0.2979,
-          "p4th": 0.1195
+          "p1st": 0.2929,
+          "p2nd": 0.4741,
+          "p3rd": 0.2242,
+          "p4th": 0.0088
         },
         {
           "slug": "senegal",
@@ -1058,10 +1058,10 @@
           "code": "SEN",
           "iso2": "sn",
           "confederation": "CAF",
-          "p1st": 0.1662,
-          "p2nd": 0.3099,
-          "p3rd": 0.3524,
-          "p4th": 0.1715
+          "p1st": 0.0223,
+          "p2nd": 0.2186,
+          "p3rd": 0.5754,
+          "p4th": 0.1837
         },
         {
           "slug": "iraq",
@@ -1069,10 +1069,10 @@
           "code": "IRQ",
           "iso2": "iq",
           "confederation": "AFC",
-          "p1st": 0.0221,
-          "p2nd": 0.0872,
-          "p3rd": 0.2189,
-          "p4th": 0.6718
+          "p1st": 0.0041,
+          "p2nd": 0.0151,
+          "p3rd": 0.1788,
+          "p4th": 0.802
         }
       ]
     },
@@ -1085,10 +1085,10 @@
           "code": "ARG",
           "iso2": "ar",
           "confederation": "CONMEBOL",
-          "p1st": 0.6934,
-          "p2nd": 0.216,
-          "p3rd": 0.0729,
-          "p4th": 0.0177
+          "p1st": 0.7888,
+          "p2nd": 0.1942,
+          "p3rd": 0.0132,
+          "p4th": 0.0038
         },
         {
           "slug": "austria",
@@ -1096,10 +1096,10 @@
           "code": "AUT",
           "iso2": "at",
           "confederation": "UEFA",
-          "p1st": 0.1796,
-          "p2nd": 0.3895,
-          "p3rd": 0.2822,
-          "p4th": 0.1487
+          "p1st": 0.1902,
+          "p2nd": 0.5938,
+          "p3rd": 0.2041,
+          "p4th": 0.0119
         },
         {
           "slug": "algeria",
@@ -1107,10 +1107,10 @@
           "code": "ALG",
           "iso2": "dz",
           "confederation": "CAF",
-          "p1st": 0.0951,
-          "p2nd": 0.2694,
-          "p3rd": 0.3701,
-          "p4th": 0.2654
+          "p1st": 0.0148,
+          "p2nd": 0.1921,
+          "p3rd": 0.4762,
+          "p4th": 0.3169
         },
         {
           "slug": "jordan",
@@ -1118,10 +1118,10 @@
           "code": "JOR",
           "iso2": "jo",
           "confederation": "AFC",
-          "p1st": 0.0319,
-          "p2nd": 0.1251,
-          "p3rd": 0.2748,
-          "p4th": 0.5682
+          "p1st": 0.0062,
+          "p2nd": 0.0199,
+          "p3rd": 0.3065,
+          "p4th": 0.6674
         }
       ]
     },
@@ -1129,26 +1129,26 @@
       "group": "K",
       "teams": [
         {
-          "slug": "portugal",
-          "displayName": "Portugal",
-          "code": "POR",
-          "iso2": "pt",
-          "confederation": "UEFA",
-          "p1st": 0.5634,
-          "p2nd": 0.304,
-          "p3rd": 0.1012,
-          "p4th": 0.0314
-        },
-        {
           "slug": "colombia",
           "displayName": "Colombia",
           "code": "COL",
           "iso2": "co",
           "confederation": "CONMEBOL",
-          "p1st": 0.3568,
-          "p2nd": 0.4199,
-          "p3rd": 0.16,
-          "p4th": 0.0633
+          "p1st": 0.4515,
+          "p2nd": 0.3112,
+          "p3rd": 0.1674,
+          "p4th": 0.0699
+        },
+        {
+          "slug": "portugal",
+          "displayName": "Portugal",
+          "code": "POR",
+          "iso2": "pt",
+          "confederation": "UEFA",
+          "p1st": 0.4386,
+          "p2nd": 0.3632,
+          "p3rd": 0.1507,
+          "p4th": 0.0475
         },
         {
           "slug": "dr-congo",
@@ -1156,10 +1156,10 @@
           "code": "COD",
           "iso2": "cd",
           "confederation": "CAF",
-          "p1st": 0.0455,
-          "p2nd": 0.1523,
-          "p3rd": 0.3851,
-          "p4th": 0.4171
+          "p1st": 0.0636,
+          "p2nd": 0.2043,
+          "p3rd": 0.4163,
+          "p4th": 0.3158
         },
         {
           "slug": "uzbekistan",
@@ -1167,10 +1167,10 @@
           "code": "UZB",
           "iso2": "uz",
           "confederation": "AFC",
-          "p1st": 0.0343,
-          "p2nd": 0.1238,
-          "p3rd": 0.3537,
-          "p4th": 0.4882
+          "p1st": 0.0463,
+          "p2nd": 0.1213,
+          "p3rd": 0.2656,
+          "p4th": 0.5668
         }
       ]
     },
@@ -1183,21 +1183,10 @@
           "code": "ENG",
           "iso2": "gb-eng",
           "confederation": "UEFA",
-          "p1st": 0.6344,
-          "p2nd": 0.2733,
-          "p3rd": 0.0741,
-          "p4th": 0.0182
-        },
-        {
-          "slug": "croatia",
-          "displayName": "Croatia",
-          "code": "CRO",
-          "iso2": "hr",
-          "confederation": "UEFA",
-          "p1st": 0.295,
-          "p2nd": 0.4565,
-          "p3rd": 0.1799,
-          "p4th": 0.0686
+          "p1st": 0.9102,
+          "p2nd": 0.0777,
+          "p3rd": 0.0085,
+          "p4th": 0.0036
         },
         {
           "slug": "ghana",
@@ -1205,10 +1194,21 @@
           "code": "GHA",
           "iso2": "gh",
           "confederation": "CAF",
-          "p1st": 0.0433,
-          "p2nd": 0.1524,
-          "p3rd": 0.4003,
-          "p4th": 0.404
+          "p1st": 0.0562,
+          "p2nd": 0.283,
+          "p3rd": 0.6154,
+          "p4th": 0.0454
+        },
+        {
+          "slug": "croatia",
+          "displayName": "Croatia",
+          "code": "CRO",
+          "iso2": "hr",
+          "confederation": "UEFA",
+          "p1st": 0.0293,
+          "p2nd": 0.6129,
+          "p3rd": 0.2586,
+          "p4th": 0.0992
         },
         {
           "slug": "panama",
@@ -1216,10 +1216,10 @@
           "code": "PAN",
           "iso2": "pa",
           "confederation": "CONCACAF",
-          "p1st": 0.0273,
-          "p2nd": 0.1178,
-          "p3rd": 0.3457,
-          "p4th": 0.5092
+          "p1st": 0.0043,
+          "p2nd": 0.0264,
+          "p3rd": 0.1175,
+          "p4th": 0.8518
         }
       ]
     }
