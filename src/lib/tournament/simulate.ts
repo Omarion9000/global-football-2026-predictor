@@ -36,6 +36,7 @@ import {
   SF_PAIRS,
   type SlotRef,
 } from './bracket';
+import { HOST_NATIONS } from './hostNations';
 import { assignThirds, type AdvancingThird } from './thirdPlaceAssignment';
 import type { RNG } from '@/lib/utils/rng';
 
@@ -119,6 +120,42 @@ type PlayedIndex = {
   knockoutByPair: Map<string, PlayedResult>;
 };
 
+/** Phase 9F: simulate a single group-stage match, applying the model's
+ *  fitted home-advantage term to a host nation playing at home — even when
+ *  the round-robin schedule has the host listed as the "away" team. Returns
+ *  the scoreline in the schedule's home/away orientation so downstream
+ *  tiebreakers + pinned-result lookups stay consistent.
+ *
+ *  Rules:
+ *    - Exactly one of the two teams is a host → apply homeAdv to the host.
+ *    - Neither is a host → neutral matrix in schedule orientation (status quo).
+ *    - Both are hosts (impossible in 2026 since each host is in a different
+ *      group, but guarded anyway) → neutral.
+ */
+function sampleHostAwareGroupMatch(
+  engine: MatchEngine,
+  fixture: { home: string; away: string },
+  rng: RNG,
+): { homeGoals: number; awayGoals: number } {
+  const homeIsHost = HOST_NATIONS.has(fixture.home);
+  const awayIsHost = HOST_NATIONS.has(fixture.away);
+  if (homeIsHost && !awayIsHost) {
+    // Schedule home is the host — natural orientation.
+    const grid = engine.scoreMatrixFor(fixture.home, fixture.away, false);
+    return sampleScoreline(grid, rng);
+  }
+  if (!homeIsHost && awayIsHost) {
+    // Schedule away is the host — host physically plays at home. Compute
+    // the matrix with the host on the home side, then flip the resulting
+    // scoreline back to the schedule's orientation.
+    const grid = engine.scoreMatrixFor(fixture.away, fixture.home, false);
+    const s = sampleScoreline(grid, rng);
+    return { homeGoals: s.awayGoals, awayGoals: s.homeGoals };
+  }
+  const grid = engine.scoreMatrixFor(fixture.home, fixture.away, true);
+  return sampleScoreline(grid, rng);
+}
+
 function indexPlayed(playedResults: ReadonlyArray<PlayedResult>): PlayedIndex {
   const group = new Map<string, GroupMatchResult>();
   const knockoutByPair = new Map<string, PlayedResult>();
@@ -145,6 +182,15 @@ function indexPlayed(playedResults: ReadonlyArray<PlayedResult>): PlayedIndex {
 function simulateOnePass(opts: SimOptions, played: PlayedIndex): SimPassResult {
   // Phase 1: group stage. For each group, play all 6 scheduled matches —
   // use the played result when present, otherwise sample from the model.
+  //
+  // Phase 9F: a host nation playing in the group stage is at home, even when
+  // the round-robin schedule labels them as "away". We compute the score
+  // matrix with the host on the home side (so the fitted homeAdv term applies
+  // in the host's favour) and, when the schedule's away team is the host,
+  // we map the sampled scoreline back to the schedule's home/away
+  // orientation so downstream tiebreakers + pinned-result indexing stay
+  // consistent. Knockouts continue to call the engine with the default
+  // neutral=true.
   const matchesByGroup = new Map<string, GroupMatchResult[]>();
   for (const g of opts.groups) {
     const schedule = defaultGroupSchedule(g.teams);
@@ -155,8 +201,7 @@ function simulateOnePass(opts: SimOptions, played: PlayedIndex): SimPassResult {
         out.push(pinned);
         continue;
       }
-      const grid = opts.engine.scoreMatrixFor(fixture.home, fixture.away);
-      const score = sampleScoreline(grid, opts.rng);
+      const score = sampleHostAwareGroupMatch(opts.engine, fixture, opts.rng);
       out.push({
         home: fixture.home,
         away: fixture.away,

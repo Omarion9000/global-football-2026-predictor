@@ -202,9 +202,9 @@ const en = {
     cardModelLink: 'docs/19b · confed extension',
     cardLimitsKicker: 'Limitations',
     cardLimitsTitle: 'Where it breaks',
-    limitHostBold: 'Host nations are under-rated.',
+    limitHostBold: 'Host knockout matches are still modelled neutral.',
     limitHostBody:
-      ' All tournament matches are modelled neutral; USA, Mexico, and Canada on home soil likely gain ~2–4 pp of title probability.',
+      ' Mexico, Canada, and the USA receive the fit\'s measured home advantage in their group-stage matches (Phase 9F). Knockout venues span all three host countries and depend on bracket path, so knockout matches stay neutral — the hosts\' ceiling is therefore still capped versus a fully venue-aware variant.',
     limitSampleBold: 'Cross-confederation sample is modest.',
     limitSampleBody:
       ' 1,026 intercontinental matches by 2018 — trust the ordering, not the decimals.',
@@ -387,9 +387,9 @@ const es: typeof en = {
     cardModelLink: 'docs/19b · extensión de confederaciones',
     cardLimitsKicker: 'Limitaciones',
     cardLimitsTitle: 'Dónde falla',
-    limitHostBold: 'Las anfitrionas están infravaloradas.',
+    limitHostBold: 'Los partidos eliminatorios de las anfitrionas siguen modelándose como neutrales.',
     limitHostBody:
-      ' Todos los partidos del torneo se modelan como neutrales; Estados Unidos, México y Canadá jugando en casa probablemente ganan ~2–4 pp de probabilidad de título.',
+      ' México, Canadá y Estados Unidos reciben la ventaja de campo medida por el modelo en sus partidos de la fase de grupos (Fase 9F). Las sedes eliminatorias se reparten entre los tres países anfitriones y dependen del camino en el cuadro, así que esos partidos siguen siendo neutrales — el techo de las anfitrionas continúa limitado frente a una variante totalmente consciente de la sede.',
     limitSampleBold: 'La muestra entre confederaciones es limitada.',
     limitSampleBody:
       ' 1.026 partidos intercontinentales hasta 2018 — fíate del orden, no de los decimales.',

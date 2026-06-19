@@ -89,7 +89,7 @@ describe('HomeView (EN)', () => {
   it('renders the methodology + limitations panel', () => {
     expect(html).toMatch(/Dixon-Coles/);
     expect(html).toMatch(/Where it breaks/);
-    expect(html).toMatch(/Host nations/);
+    expect(html).toMatch(/Host knockout matches/);
     expect(html).toMatch(/Published FIFA structure, Annex C approximated/);
   });
 

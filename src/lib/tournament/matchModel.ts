@@ -125,23 +125,28 @@ export function modelStrength(model: FittedModel, team: string): number {
 // =============================================================================
 
 export interface MatchEngine {
-  scoreMatrixFor(homeTeam: string, awayTeam: string): number[][];
+  /** Phase 9F: `neutral` defaults to `true` so existing call sites (knockout
+   *  matches, non-host group matches) keep their neutral semantics. The
+   *  simulator passes `neutral=false` for a host nation playing at home in
+   *  the group stage; the math reduces to the same fitted homeAdv term that
+   *  the Phase 9B predictor uses for venue-aware league matches. */
+  scoreMatrixFor(homeTeam: string, awayTeam: string, neutral?: boolean): number[][];
   modelStrength(team: string): number;
   resolveKnockoutMatch(homeTeam: string, awayTeam: string, rng: RNG): KnockoutOutcome;
 }
 
 /** Build the (maxGoals+1)² score-probability matrix for one match.
  *
- *  Phase 9C V1: every tournament match is treated as **neutral**. Real
- *  2026 matches involving the three host nations (USA / Mexico / Canada)
- *  playing on home soil would technically merit homeAdv, but the simulator
- *  has no per-match venue data so we use the conservative default of
- *  neutral=true throughout. Documented as a known simplification in
- *  docs/20. */
+ *  Phase 9F: the simulator now passes `neutral=false` for host-at-home group
+ *  matches (Mexico / Canada / USA). The matrix computation reduces to the
+ *  same fitted homeAdv path the Phase 9B predictor uses for venue-aware
+ *  matches — no new constant introduced. Knockouts continue to call this
+ *  with the default `neutral=true`. */
 export function scoreMatrixFor(
   model: FittedModel,
   homeTeam: string,
   awayTeam: string,
+  neutral: boolean = true,
 ): number[][] {
   const hIdx = model.teamIndex.get(homeTeam);
   const aIdx = model.teamIndex.get(awayTeam);
@@ -150,9 +155,7 @@ export function scoreMatrixFor(
       `scoreMatrixFor: unknown team "${hIdx == null ? homeTeam : awayTeam}" — fit may have skipped this slug.`,
     );
   }
-  // V1: treat all tournament matches as neutral. See docs/20 for the
-  // discussion. The math is the same as the 9B predictor's predict path.
-  return scoreMatrixNational(model.params, hIdx, aIdx, true);
+  return scoreMatrixNational(model.params, hIdx, aIdx, neutral);
 }
 
 /** Sample (homeGoals, awayGoals) from the score grid using a seedable RNG. */
@@ -200,7 +203,7 @@ const SHOOTOUT_SCALE = 0.5;
  *  `makeEngineConfed` for the confed-aware model. */
 export function makeEngine(model: FittedModel): MatchEngine {
   return {
-    scoreMatrixFor: (home, away) => scoreMatrixFor(model, home, away),
+    scoreMatrixFor: (home, away, neutral) => scoreMatrixFor(model, home, away, neutral),
     modelStrength: (team) => modelStrength(model, team),
     resolveKnockoutMatch: (home, away, rng) => resolveKnockoutMatch(model, home, away, rng),
   };

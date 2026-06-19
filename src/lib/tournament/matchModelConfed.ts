@@ -126,6 +126,7 @@ export function scoreMatrixForConfed(
   model: FittedModelConfed,
   homeTeam: string,
   awayTeam: string,
+  neutral: boolean = true,
 ): number[][] {
   const hIdx = model.teamIndex.get(homeTeam);
   const aIdx = model.teamIndex.get(awayTeam);
@@ -134,16 +135,16 @@ export function scoreMatrixForConfed(
       `scoreMatrixForConfed: unknown team "${hIdx == null ? homeTeam : awayTeam}".`,
     );
   }
-  // V1: treat all tournament matches as neutral, same as 9C V1. The conf
-  // adjustment fires regardless of neutrality because the conf term is
-  // independent of homeAdv.
+  // Phase 9F: `neutral=false` is passed by the simulator only when a host
+  // nation plays at home in the group stage. The confederation term still
+  // fires either way because it is independent of homeAdv.
   return scoreMatrixConfed(
     model.params,
     hIdx,
     aIdx,
     model.teamConfIdx[hIdx],
     model.teamConfIdx[aIdx],
-    true,
+    neutral,
   );
 }
 
@@ -200,7 +201,7 @@ export function resolveKnockoutMatchConfed(
 /** Build a model-agnostic engine that simulate.ts can drive. */
 export function makeEngineConfed(model: FittedModelConfed): MatchEngine {
   return {
-    scoreMatrixFor: (home, away) => scoreMatrixForConfed(model, home, away),
+    scoreMatrixFor: (home, away, neutral) => scoreMatrixForConfed(model, home, away, neutral),
     modelStrength: (team) => modelStrengthConfed(model, team),
     resolveKnockoutMatch: (home, away, rng) => resolveKnockoutMatchConfed(model, home, away, rng),
   };

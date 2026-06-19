@@ -136,27 +136,35 @@ reproducible via `pnpm sim:tournament --model=9b` for direct comparison.
 The simulator output is best read as **a rank ordering with uncertainty
 intervals**, not as exact title percentages.
 
-### 4.1 Host-nation underrating (V1 simplification)
+### 4.1 Host-nation underrating (partly addressed in Phase 9F)
 
-**Every tournament match in V1 is modelled as neutral.** Real 2026 fixtures
-involving the three host nations (USA, Mexico, Canada) playing on home soil
-would technically merit the homeAdv term, but the simulator has no
-per-match venue data so the conservative-neutral default applies
-throughout.
+**Phase 9F applied the model's fitted home-advantage term to the three
+host nations (Mexico, Canada, USA) for their group-stage matches.** Every
+host nation verifiably plays all three of its group-stage fixtures on home
+soil in 2026, so a flat group-stage host rule is venue-faithful without
+needing a per-match table. See [§5](#5-host-home-advantage-phase-9f-group-stage-only)
+for the wiring and the Option-B rule.
 
-Combined with the CONCACAF confed term being mildly negative (−0.35), the
-host nations are likely **underrated by ~2–4 percentage points each in
-title probability** vs a venue-aware model. Their confed-corrected odds
-read:
+**Knockout matches remain modelled as neutral for every team.** Host
+knockout venues span all three countries and depend on each team's bracket
+path, which the simulator does not resolve. The hosts' title ceiling is
+therefore still capped versus a fully venue-aware variant.
 
-| host | confed title odds |
-|---|---:|
-| Mexico | 0.40 % |
-| United States | 0.09 % |
-| Canada | 0.11 % |
+Pre-9F host odds (Phase 9E bracket, all-neutral) → Post-9F host odds
+(group-stage host advantage):
 
-A future revision could add a per-match `isHomeFor` slot to the bracket
-config; deferred to keep V1 small.
+| host | pre-9F P(R16) | post-9F P(R16) | Δ pp | pre-9F P(title) | post-9F P(title) | Δ pp |
+|---|---:|---:|---:|---:|---:|---:|
+| Mexico | 46.6 % | 46.1 % | −0.5 | 0.34 % | 0.32 % | −0.02 |
+| United States | 43.4 % | 45.5 % | +2.1 | 0.09 % | 0.16 % | +0.07 |
+| Canada | 33.8 % | 37.7 % | +3.9 | 0.02 % | 0.12 % | +0.10 |
+
+Mexico barely moves because Mexico was already the clear Group A
+favourite at neutral — the home boost only sharpens P(1st) (now ~60 %).
+USA gains the most R16 lift because USA was nearly tied with Australia for
+Group D winner before 9F; the home term tips that close call. Canada
+gains the most P(R16) because Group B is the tightest of the three host
+groups.
 
 ### 4.2 Intercontinental-sample uncertainty
 
@@ -326,7 +334,105 @@ There is **no live API** in this phase. A future Phase 9D would surface
 the simulation in a UI; whether to add a live data feed is a separate
 approval question.
 
-## 5. Reproduce
+## 5. Host home advantage — Phase 9F (group stage only)
+
+### 5.1 Why
+
+The three 2026 host nations — Mexico, Canada, and the United States — play
+all of their group-stage matches on home soil (verified: Mexico's group
+matches are in Mexico, Canada's are in Canada, USA's are in the USA, with
+no host playing a group fixture abroad). Treating those matches as neutral
+is therefore measurably wrong. Knockout venues are spread across all three
+countries and depend on bracket path, so the knockout layer remains
+neutral — that limitation is documented in §4.1 and the methodology card
+in the UI.
+
+### 5.2 The Option-B rule
+
+The wiring is config-driven, not match-ID-driven:
+
+> **A team listed in `HOST_NATIONS` (`src/lib/tournament/hostNations.ts`)
+> playing a group-stage match is at home. Every other match is neutral.**
+
+This avoids hard-coding a per-fixture venue table. The host designation
+matches the canonical `groups.json` display names verbatim (Mexico,
+Canada, United States). The runner's existing `resolveNation` pipeline
+ensures any drift surfaces as a hard error rather than silently failing.
+
+### 5.3 What changed in code
+
+- `src/lib/tournament/hostNations.ts` — exports the `HOST_NATIONS` set and
+  `isHostNation(team)` helper. Three-line module.
+- `src/lib/tournament/matchModel.ts` and
+  `src/lib/tournament/matchModelConfed.ts` — the `MatchEngine.scoreMatrixFor`
+  interface gains an optional `neutral?: boolean` parameter (default `true`,
+  preserving every existing call site). Both wrappers thread the flag
+  through to the underlying Dixon-Coles score-matrix function, which
+  already accepted a `neutral` argument from Phase 9B onward.
+- `src/lib/tournament/simulate.ts` — the per-pass group-stage loop now
+  calls a `sampleHostAwareGroupMatch` helper that consults `HOST_NATIONS`.
+  When exactly one of the two teams is a host the score matrix is computed
+  with the host on the home side (`neutral=false`); when the schedule
+  labels the host as the away team (M5 in each host's group), the sampled
+  scoreline is mapped back to the schedule's orientation so downstream
+  tiebreakers and pinned-result lookups stay consistent. When neither
+  team is a host the path is identical to the pre-9F call (`neutral=true`).
+- Knockout matches continue to invoke `engine.resolveKnockoutMatch`, which
+  builds its grid via `scoreMatrixFor(home, away)` with the default
+  `neutral=true`. No host-aware path exists in the R32+ loop.
+
+### 5.4 The homeAdv value used
+
+The home-advantage scalar applied is **exactly the term the 9B (and 9B.2
+confed) fit produced** when minimising weighted MLE over the martj42
+top-tier international corpus. No new constant is introduced; no
+re-estimation is performed. The model exposes `model.params.homeAdv`
+directly; the score-matrix function multiplies the home team's goal rate
+by `exp(homeAdv)` when `neutral=false` and by `1` when `neutral=true` —
+the same code path the Phase 9B backtest predictor uses for venue-aware
+league matches.
+
+### 5.5 Engine math is byte-identical
+
+Phase 9F is a wiring change, not a model change. The Dixon-Coles math
+(`src/lib/backtest/national/dixonColes.ts`,
+`src/lib/backtest/national/dixonColesConfed.ts`) is byte-identical to
+Phase 9B/9B.2. `MODEL_VERSION` stays `'v0.1.0'`. The production deployed
+engine in `src/lib/model/**` is untouched.
+
+### 5.6 What changes on the post-MD1 corpus
+
+Compared to the Phase 9E run (same seed, same N, same 24 pinned results,
+same FIFA bracket, all matches neutral):
+
+| host | pre-9F P(R16) | post-9F P(R16) | Δ pp | pre-9F P(title) | post-9F P(title) | Δ pp |
+|---|---:|---:|---:|---:|---:|---:|
+| Mexico | 46.6 % | 46.1 % | −0.5 | 0.34 % | 0.32 % | −0.02 |
+| United States | 43.4 % | 45.5 % | +2.1 | 0.09 % | 0.16 % | +0.07 |
+| Canada | 33.8 % | 37.7 % | +3.9 | 0.02 % | 0.12 % | +0.10 |
+
+Mexico barely moves because Mexico was already Group A's clear
+favourite at neutral; the home boost only sharpens P(1st) from ~57 % to
+~60 %. USA gains the most R16 lift because USA was nearly tied with
+Australia for Group D winner before 9F; the home term tips that close
+call and USA becomes the clear Group D favourite. Canada gains the most
+P(R16) lift because Group B is the tightest of the three host groups —
+Canada moves from third-place candidate to clear runner-up.
+
+Non-host title odds shift by **less than ±0.3 pp** across the board
+(Spain +0.20, England +0.31, Argentina +0.13, Brazil −0.31), all
+comfortably inside Monte-Carlo noise at N = 10 000. The byte-identity of
+the underlying engine is what guarantees this — only the host-involving
+group-stage calls change.
+
+### 5.7 Known limitation that remains
+
+The hosts' title ceiling is still capped because knockout matches stay
+neutral. Implementing knockout host advantage would require a per-match
+venue table keyed on each R32+ match position, which depends on FIFA's
+published venue allocation and is currently out of scope.
+
+## 6. Reproduce
 
 ```bash
 # Pre-requisite: Phase 9A corpus on disk (gitignored, one-shot)

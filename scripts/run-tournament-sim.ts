@@ -472,6 +472,7 @@ function buildUiJson(input: {
           ? `Canonical live simulator run with ${playedForSim.length} match(es) pinned. `
           : 'Canonical pre-tournament simulator run. ') +
         `Phase 9E bracket: third-place fallback used in ${fallbackPct}% of passes. ` +
+        'Phase 9F: host nations (Mexico, Canada, USA) receive home advantage in group-stage matches; knockouts remain neutral. ' +
         'Reproduce with: pnpm sim:tournament --model=confed --seed=42 --n=10000 --write-ui-json',
     },
     teams,
