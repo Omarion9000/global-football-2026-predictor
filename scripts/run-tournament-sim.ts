@@ -59,6 +59,7 @@ import {
   modelStrengthConfed,
 } from '@/lib/tournament/matchModelConfed';
 import { runMonteCarlo, titleTable, type PlayedResult } from '@/lib/tournament/simulate';
+import { validateResults } from '@/lib/tournament/validateResults';
 import { makeRNG } from '@/lib/utils/rng';
 
 const CORPUS_PATH = resolve(process.cwd(), 'data', 'raw', 'international_results.csv');
@@ -166,6 +167,17 @@ async function main(): Promise<void> {
     }
   }
   process.stdout.write(`  All 48 slots resolved\n\n`);
+
+  // Phase 9F.1: strict validation of results.json BEFORE the 12-second fit.
+  // Bad entries (unknown teams, inverted home/away, invalid stages, draws in
+  // knockouts, duplicates) throw with a clear pointer to the offending row.
+  process.stdout.write(`  Validating ${resultsFile.results.length} pinned result(s) …\n`);
+  const canonicalGroups = groupsFile.groups.map((g) => ({
+    group: g.group,
+    teams: g.teams.map((n) => tournamentToSlugDisplay[n]),
+  }));
+  validateResults(resultsFile.results, canonicalGroups);
+  process.stdout.write(`  All pinned results validated ✓\n\n`);
 
   // Map the user-facing names to the canonical displayName (the corpus
   // value) so the simulator uses the same string the model knows.

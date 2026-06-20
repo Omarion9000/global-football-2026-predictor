@@ -334,6 +334,49 @@ There is **no live API** in this phase. A future Phase 9D would surface
 the simulation in a UI; whether to add a live data feed is a separate
 approval question.
 
+### 4.7 Strict validation of `results.json` — Phase 9F.1
+
+Prior to 9F.1, `results.json` had no schema enforcement. A typo'd team
+name, an inverted home/away order, or a misspelled `stage` caused the
+runner to **silently drop the pinned match and simulate it from the
+model**, while the UI still reported "N matches played". The validator
+in `src/lib/tournament/validateResults.ts` is called from the runner
+*before the 12-second DC fit* and throws on the first invalid entry with
+a message naming the offending `results[N]` index and the actionable fix.
+
+Checks (every failure throws):
+
+| # | check | example error |
+|---|---|---|
+| a | `stage ∈ {group, r32, r16, qf, sf, final, third_place}` | `results[0]: invalid stage "groups". Must be one of: group, r32, r16, ...` |
+| b | `home` / `away` resolve to a canonical national team that is in this tournament's roster | `results[0]: "home" team "USA" did not resolve to a known national team. Use the canonical name from data/tournament/groups.json (e.g. "United States" not "USA"; ...)` |
+| c | `home ≠ away` (post-resolution, so aliases of the same team count) | `results[0]: home and away resolve to the same team "South Korea". A team cannot play itself.` |
+| d | `homeGoals`, `awayGoals` are non-negative integers | `results[0]: "homeGoals" must be a non-negative integer (got -1).` |
+| e | for group matches: `(home, away)` matches the schedule's orientation; if the reversed pair would have matched, the error says so explicitly | `results[2]: schedule lists Bosnia and Herzegovina vs Canada in Group B, but you wrote Canada vs Bosnia and Herzegovina. Swap the home/away order to match the schedule.` |
+| f | knockout stages reject draws (encode shootouts as the decisive scoreline) | `results[0]: knockout-stage result Mexico 1-1 Brazil is a draw. Knockouts must be decisive; encode an ET/penalties outcome as the effective decisive scoreline (e.g. 1-0).` |
+| g | duplicate `(stage, home, away)` is rejected with a pointer to the prior index | `results[1]: duplicate of results[0] — same stage (group) and same matchup (Mexico vs South Africa). Remove one of the two entries.` |
+
+**Real bug caught on the validator's first run.** When wired into the
+runner, the validator immediately flagged **5 of the 24 Matchday-1
+entries** as having inverted home/away orientation versus the
+round-robin schedule that `defaultGroupSchedule` produces. Those 5
+matches had been silently re-rolled from the model in every sim run
+from Phase 9D.2 onward — the UI's "24 matches played" was correct by
+JSON entry count but wrong by effective pin count (only 19 were truly
+fixed). The orientation fix is bundled into the 9F.1 commit; the most
+materially distorted teams were Sweden (P(R16) jumps from 27.9 % to
+40.3 % once the 5-1 over Tunisia is actually pinned) and Colombia
+(P(R16) from 57.2 % to 64.7 % with the 3-1 over Uzbekistan pinned).
+
+This is what protects the live-update cycle: as MD2 / MD3 results are
+hand-entered tomorrow and after, any typo, alias slip, or
+orientation swap stops the run with an actionable message instead of
+quietly shipping a canonical JSON that disagrees with the manifest.
+
+The validator is pure and runs in well under 5 ms; it does not change
+how results are applied — only whether the run proceeds. Engine math,
+`MODEL_VERSION`, and all downstream tournament code stay byte-identical.
+
 ## 5. Host home advantage — Phase 9F (group stage only)
 
 ### 5.1 Why

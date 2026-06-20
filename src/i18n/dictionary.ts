@@ -389,7 +389,7 @@ const es: typeof en = {
     cardLimitsTitle: 'Dónde falla',
     limitHostBold: 'Los partidos eliminatorios de las anfitrionas siguen modelándose como neutrales.',
     limitHostBody:
-      ' México, Canadá y Estados Unidos reciben la ventaja de campo medida por el modelo en sus partidos de la fase de grupos (Fase 9F). Las sedes eliminatorias se reparten entre los tres países anfitriones y dependen del camino en el cuadro, así que esos partidos siguen siendo neutrales — el techo de las anfitrionas continúa limitado frente a una variante totalmente consciente de la sede.',
+      ' México, Canadá y Estados Unidos reciben la ventaja de campo medida por el modelo en sus partidos de la fase de grupos (Fase 9F). Las sedes eliminatorias se reparten entre los tres países anfitriones y dependen del camino en el cuadro, así que esos partidos siguen siendo neutrales — el techo de las anfitrionas continúa limitado frente a una versión que considere dónde se juega cada partido.',
     limitSampleBold: 'La muestra entre confederaciones es limitada.',
     limitSampleBody:
       ' 1.026 partidos intercontinentales hasta 2018 — fíate del orden, no de los decimales.',
